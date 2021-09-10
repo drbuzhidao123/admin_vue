@@ -7,7 +7,7 @@ import { ElMessage } from "element-plus";
 import router from "../router";
 
 //默认信息参数
-const UnToken = "没有token,不在登录状态";
+const UnToken = "没有token或token有误，不在登录状态";
 const ServerError = "网络错误";
 
 //创建实例对象，添加全局配置
@@ -31,7 +31,7 @@ service.interceptors.response.use((res) => {
   if (code === 200) {
     return data;
   } else if (code === 40001) {
-    //未登录，没token
+    //未登录，没token或者token在后端对不上出错或token过期
     ElMessage.error(msg || UnToken);
     setTimeout(() => {
       router.push("/login");
@@ -48,6 +48,10 @@ function request(options) {
   options.method = options.method || "get";
   if (options.method.toLowerCase() === "get") {
     options.params = options.data;
+  }
+
+  if (typeof options.mock != "undefined") {
+    config.mock = options.mock;
   }
 
   if (config.env === "production") {

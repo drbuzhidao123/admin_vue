@@ -36,17 +36,24 @@
               <p>
                 <label>用户名:</label> <span>{{ username }}</span>
               </p>
-              <p>
-                <label>用户分组:</label> <span>{{ group }}</span>
-              </p>
-              <p>
-                <label>手机号码:</label> <span>{{ mobile }}</span>
-              </p>
             </div>
           </el-card>
         </el-col>
       </el-row>
     </transition>
+    <el-row>
+      <el-col :span="12">
+        <el-card shadow="hover">
+          <div id="myChart1"></div>
+        </el-card>
+      </el-col>
+      <el-col :span="1"> </el-col>
+      <el-col :span="11">
+        <el-card shadow="hover">
+          <div id="myChart2"></div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 <script>
@@ -57,32 +64,17 @@ export default {
       show: false,
       user_id: window.sessionStorage.getItem("id"),
       username: window.sessionStorage.getItem("username"),
-      mobile: window.sessionStorage.getItem("mobile"),
-      group: window.sessionStorage.getItem("group"),
-      proCount: Number,
+      proCount: 3,
     };
   },
   props: {},
-  created() {
-    this.getCount();
-  },
+  created() {},
   mounted() {
-    this.myChart();
     this.fadeIn();
   },
   methods: {
     fadeIn() {
       this.show = !this.show;
-    },
-    getCount() {
-      let _this = this;
-      this.axios.post("product/getCount").then(function (res) {
-        if (res.data.status == 1) {
-          _this.proCount = res.data.result;
-        } else {
-          _this.$message.error(res.data.message);
-        }
-      });
     },
   },
 };
@@ -90,7 +82,6 @@ export default {
 
 <style scoped lang="scss">
 .welcome {
-  font-size: 16px;
   h3 {
     font-size: 24px;
   }
@@ -98,13 +89,11 @@ export default {
     margin-bottom: 30px;
     #myChart1 {
       width: 100%;
-      height: 500px;
-      margin: 0 auto;
+      min-height: 300px;
     }
     #myChart2 {
       width: 100%;
-      height: 500px;
-      margin: 0 auto;
+      min-height: 300px;
     }
   }
   .card-header {

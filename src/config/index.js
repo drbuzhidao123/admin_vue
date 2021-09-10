@@ -5,7 +5,7 @@
 const env = process.env.NODE_ENV || "production";
 const EnvConfig = {
   development: {
-    baseApi: "/",
+    baseApi: "http://www.admin-vue-api.com/admin",
     mockApi:
       "https://www.fastmock.site/mock/28abdf1cf4a03ac6565549b8c8543cf5/api",
   },
@@ -22,7 +22,7 @@ const EnvConfig = {
 
 export default {
   env,
-  mock: true,
+  mock: false,
   ...EnvConfig[env],
   namespace: "manager",
 };

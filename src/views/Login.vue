@@ -6,17 +6,17 @@
         <h3>后台管理系统</h3>
       </div>
       <el-form
-        :model="ruleForm"
+        :model="user"
         status-icon
         :rules="rules"
-        ref="ruleForm"
+        ref="userForm"
         class="demo-ruleForm"
         :label-position="labelPosition"
       >
-        <el-form-item prop="username">
+        <el-form-item prop="userName">
           <el-input
             prefix-icon="iconfont icon-yonghu"
-            v-model="ruleForm.username"
+            v-model="user.userName"
             autocomplete="off"
           ></el-input>
         </el-form-item>
@@ -24,16 +24,14 @@
           <el-input
             prefix-icon="iconfont icon-password"
             type="password"
-            v-model="ruleForm.password"
+            v-model="user.password"
             autocomplete="off"
           ></el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')"
-            >提交</el-button
-          >
-          <el-button @click="resetForm('ruleForm')">重置</el-button>
+          <el-button type="primary" @click="login()">提交</el-button>
+          <el-button @click="resetForm()">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -61,12 +59,12 @@ export default {
     };
     return {
       labelPosition: "left",
-      ruleForm: {
-        username: "",
+      user: {
+        userName: "",
         password: "",
       },
       rules: {
-        username: [{ validator: validatename, trigger: "blur" }],
+        userName: [{ validator: validatename, trigger: "blur" }],
         password: [{ validator: validatePass, trigger: "blur" }],
       },
     };
@@ -79,51 +77,34 @@ export default {
       lizi_init();
       document.onkeypress = function () {
         if (window.event.keyCode == 13) {
-          _this.submitForm("ruleForm");
+          _this.login();
         }
       };
     });
   },
   methods: {
-    submitForm(formName) {
-      let _this = this;
-      _this.$refs[formName].validate((valid) => {
+    login() {
+      this.$refs.userForm.validate((valid) => {
         if (valid) {
-          _this.axios.post("login/check", _this.ruleForm).then(function (res) {
-            //登录成功
-            if (res.data.status == 1) {
-              _this.$message.success({
-                message: res.data.message,
-                type: "success",
-              });
-              window.sessionStorage.setItem("token", res.data.result.token);
-              window.sessionStorage.setItem("id", res.data.result.id);
-              window.sessionStorage.setItem(
-                "username",
-                res.data.result.username
-              );
-              window.sessionStorage.setItem("mobile", res.data.result.mobile);
-              window.sessionStorage.setItem("group", res.data.result.group);
-              _this.$router.push({ path: "/index" });
-              //_this.$router.push("/index",);
-            } else {
-              _this.$message.error(res.data.message);
-            }
+          this.$api.login(this.user).then((res) => {
+            console.log(res);
+            //存储登录信息在store和localstorage,存在localstorage是为了存储更稳定因为vuex只要一刷新就没了信息。
+            //this.$store.commit("saveUserInfo", res);
+            //this.$storage.setItem("token", res.token);
+            //this.$router.push("/welcome");
           });
         } else {
-          console.log("error submit!!");
           return false;
         }
       });
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    resetForm() {
+      this.$refs.userForm.resetFields();
     },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 #canvas {
   display: block;
@@ -141,7 +122,7 @@ export default {
   align-items: center;
   .box {
     width: 400px;
-    height: 250px;
+    height: 300px;
     margin-top: -10%;
     box-shadow: 0 -15px 30px #000;
     background-color: #fff;

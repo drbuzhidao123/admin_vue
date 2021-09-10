@@ -1,68 +1,76 @@
 <template>
   <el-container>
-    <el-header>
-      <div class="title">后台管理</div>
-      <div class="admin">
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            <el-avatar icon="el-icon-user-solid"> {{ username }} </el-avatar
-            ><i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="showEditDialog(user_id)"
-                ><i class="el-icon-edit"></i> 修改个人信息</el-dropdown-item
-              >
-              <el-dropdown-item @click="logout()"
-                ><i class="el-icon-circle-close"></i> 退出</el-dropdown-item
-              >
-            </el-dropdown-menu>
+    <el-aside>
+      <el-menu
+        default-active="2"
+        class="el-menu-vertical-demo"
+        @open="handleOpen"
+        @close="handleClose"
+        :collapse="isCollapse"
+        background-color="#393D49"
+        text-color="#fff"
+        active-text-color="#ffd04b"
+        :unique-opened="true"
+        :router="true"
+      >
+        <el-menu-item class="admin-title" index="/">
+          <img class="logo" src="../assets/logo.png" alt="" />
+          <template #title>
+            <span style="margin-left: 55px">后台管理系统</span>
           </template>
-        </el-dropdown>
-      </div>
-    </el-header>
+        </el-menu-item>
+        <tree-menu :menuList="menuList"></tree-menu>
+      </el-menu>
+    </el-aside>
     <el-container>
-      <el-aside width="initial">
-        <div class="toggle-button" @click="toggleCollapse()">
-          <i :class="togicon"></i>
+      <el-header>
+        <div class="header-left">
+          <el-icon
+            size="25"
+            color="#000"
+            class="toggle-button"
+            @click="toggleCollapse()"
+          >
+            <fold v-if="togicon == 'el-icon-s-fold'" />
+            <expand v-if="togicon == 'el-icon-s-unfold'" />
+          </el-icon>
+          <breadcrumb></breadcrumb>
         </div>
-        <el-menu
-          default-active="2"
-          class="el-menu-vertical-demo"
-          @open="handleOpen"
-          @close="handleClose"
-          :collapse="isCollapse"
-          background-color="#393D49"
-          text-color="#fff"
-          active-text-color="#ffd04b"
-          :unique-opened="true"
-          :router="true"
-        >
-          <el-submenu index="1">
-            <template #title>
-              <i class="el-icon-s-shop"></i>
-              <span>产品管理</span>
+        <div class="admin">
+          <!--审核提示-->
+          <el-dropdown>
+            <el-badge :is-dot="noticeCount" class="notice" type="danger">
+              <el-icon class="bell-icon">
+                <bell />
+              </el-icon>
+            </el-badge>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>修改个人信息</el-dropdown-item>
+              </el-dropdown-menu>
             </template>
-            <el-menu-item
-              index="/productcate"
-              :route="{
-                path: '/productcate',
-                query: { menu_title: '分类管理' },
-              }"
-            >
-              <i class="el-icon-menu"></i>
-              <template #title>分类管理</template>
-            </el-menu-item>
-            <el-menu-item
-              index="/product"
-              :route="{ path: '/product', query: { menu_title: '内容管理' } }"
-            >
-              <i class="el-icon-menu"></i>
-              <template #title>内容管理</template>
-            </el-menu-item>
-          </el-submenu>
-        </el-menu>
-      </el-aside>
+          </el-dropdown>
+          <!--个人信息-->
+          <el-dropdown @command="handleLogout">
+            <span class="el-dropdown-link">
+              <el-avatar icon="el-icon-user-solid">
+                {{ userInfo.userName }}
+              </el-avatar>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="email">
+                  <i class="el-icon-edit"></i>邮箱：{{ userInfo.userEmail }}
+                </el-dropdown-item>
+                <el-dropdown-item command="logout">
+                  <i class="el-icon-edit"></i>退出
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-header>
       <el-main>
         <router-view></router-view>
       </el-main>
@@ -111,34 +119,47 @@
 </template>
 
 <script>
+import { Fold, Expand, Bell } from "@element-plus/icons";
+import breadcrumb from "../components/BreadCrumb.vue";
+import TreeMenu from "../components/TreeMenu.vue";
 export default {
   name: "Index",
+  components: {
+    Fold,
+    Expand,
+    Bell,
+    breadcrumb,
+    TreeMenu,
+  },
   data() {
     return {
       isCollapse: false,
       togicon: "el-icon-s-fold",
-      user_id: window.sessionStorage.getItem("id"),
-      username: window.sessionStorage.getItem("username"),
       editDialogVisible: false,
+      noticeCount: 0,
+      menuList: [],
+      userInfo: {
+        userName: "jack",
+        userEmail: "jack@163.com",
+      },
       password: "",
       editForm: {
         username: "",
         password: "",
-        mobile: "",
       },
       editFormRules: {
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
         ],
-        mobile: [
-          { required: true, message: "请输入手机号码", trigger: "blur" },
-          { min: 6, max: 15, message: "输入的手机号码是11位" },
-        ],
       },
     };
   },
   created() {},
+  mounted() {
+    this.getNoticeCount();
+    this.getMenuList();
+  },
   methods: {
     editDiglogClose() {
       this.$refs.editFormRef.resetFields();
@@ -182,10 +203,21 @@ export default {
         }
       });
     },
-
-    logout() {
-      window.sessionStorage.clear();
-      this.$router.push("/Login");
+    async getNoticeCount() {
+      const count = await this.$api.noticeCount();
+      this.noticeCount = count;
+    },
+    async getMenuList() {
+      const menuList = await this.$api.getMenuList();
+      this.menuList = menuList;
+    },
+    handleLogout(command) {
+      if (command == "email") {
+        return;
+      }
+      this.$store.commit("saveUserInfo", "");
+      this.userInfo = null;
+      this.$router.push("/login");
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
@@ -206,18 +238,31 @@ export default {
   background-color: #4a4a4b;
   color: #333;
   text-align: center;
-  line-height: 60px;
+  line-height: 40px;
+}
+
+.el-header {
+  .header-left {
+    display: flex;
+    align-items: center;
+    .el-breadcrumb {
+      margin-left: 20px;
+    }
+  }
+}
+
+.toggle-button {
+  cursor: pointer;
 }
 
 .el-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1e9fff;
-  padding: 0;
+  background-color: #fff;
+  padding: 0 30px;
   .title {
     background-color: #0085e8;
-    width: 200px;
     color: #fff;
     font-size: 18px;
   }
@@ -226,9 +271,17 @@ export default {
     margin-right: 20px;
   }
   .admin {
-    margin-right: 35px;
+    cursor: pointer;
+    .el-badge {
+      cursor: pointer;
+      margin-right: 30px;
+      .el-icon {
+        font-size: 25px;
+        vertical-align: middle;
+      }
+    }
     span {
-      color: #fff;
+      color: #000;
       .el-avatar {
         font-size: 27px;
         margin-right: 10px;
@@ -239,32 +292,28 @@ export default {
 }
 
 .el-aside {
-  height: 100%;
+  width: auto !important;
   color: #fff;
   text-align: center;
-  line-height: 200px;
+  line-height: 70px;
   background-color: rgb(57, 61, 73);
+  .admin-title {
+    span {
+      font-size: 16px;
+    }
+    .logo {
+      max-width: 35px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
   .el-menu {
     text-align: left;
     border-right: none;
-    &:not(.el-menu--collapse) {
-      width: 200px;
+    .el-sub-menu__title * {
+      margin-right: 80px !important;
     }
-  }
-  .toggle-button {
-    background-color: #fff;
-    font-size: 24px;
-    line-height: 24px;
-    color: #fff;
-    text-align: center;
-    letter-spacing: 0.2em;
-    cursor: pointer;
-  }
-  .el-icon-s-fold {
-    color: #000;
-  }
-  .el-icon-s-unfold {
-    color: #000;
   }
 }
 
@@ -281,6 +330,11 @@ body > .el-container {
 
 .el-container {
   height: 100%;
+}
+
+.block-w80 {
+  width: 80px;
+  display: inline-block;
 }
 </style>
 
