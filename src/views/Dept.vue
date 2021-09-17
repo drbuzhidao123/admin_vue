@@ -23,21 +23,15 @@
           <el-button
             type="primary"
             icon="el-icon-circle-plus-outline"
-            @click="dialogVisible = true"
-            >添加</el-button
-          >
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            @click="dialogVisible = true"
-            >批量删除</el-button
+            @click="handleOpen()"
+            >创建部门</el-button
           >
         </el-col>
       </el-row>
       <!--列表-->
       <el-table
         :data="deptList"
-        row-key="_id"
+        row-key="id"
         :tree-props="{ children: 'children' }"
         stripe
       >
@@ -54,7 +48,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="handleDel(scope.row._id)"
+              @click="handleDel(scope.row.id)"
               >删除</el-button
             >
           </template>
