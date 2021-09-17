@@ -5,6 +5,8 @@ import axios from "axios";
 import config from "../config";
 import { ElMessage } from "element-plus";
 import router from "../router";
+import secret from "./secret";
+import storage from "./storage";
 
 //默认信息参数
 const UnToken = "没有token或token有误，不在登录状态";
@@ -20,7 +22,7 @@ const service = axios.create({
 service.interceptors.request.use((req) => {
   const headers = req.headers;
   if (!headers.Authorization) {
-    headers.Authorization = "tokenStr";
+    headers.Authorization = storage.getItem("token");
   }
   return req;
 });
@@ -29,7 +31,8 @@ service.interceptors.request.use((req) => {
 service.interceptors.response.use((res) => {
   const { code, data, msg } = res.data;
   if (code === 200) {
-    return data;
+    let res = JSON.parse(secret.Decrypt(data));
+    return res;
   } else if (code === 40001) {
     //未登录，没token或者token在后端对不上出错或token过期
     ElMessage.error(msg || UnToken);
@@ -59,6 +62,8 @@ function request(options) {
   } else {
     service.defaults.baseURL = config.mock ? config.mockApi : config.baseApi;
   }
+
+  options.data = { data: secret.Encrypt(options.data) };
 
   return service(options);
 }

@@ -9,6 +9,7 @@ export default {
       url: "/login/check",
       method: "post",
       data: params,
+      mock: false,
     });
   },
   noticeCount() {
@@ -16,13 +17,39 @@ export default {
       url: "/leave/count",
       method: "get",
       data: {},
+      mock: true,
     });
   },
-  getMenuList() {
+  getUserMenuList(params) {
     return request({
-      url: "/menu/list",
-      method: "get",
-      data: {},
+      url: "/menu/getMenuListByUserId",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  getUserList(params) {
+    return request({
+      url: "/user/getUserList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  addUser(params) {
+    return request({
+      url: "/user/addUser",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  getDeptList(params) {
+    return request({
+      url: "/dept/getDeptList",
+      method: "post",
+      data: params,
+      mock: false,
     });
   },
 };

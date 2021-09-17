@@ -2,6 +2,8 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Index from "../views/Index.vue";
 import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
+import User from "../views/User.vue";
+import Dept from "../views/Dept.vue";
 import storage from "../util/storage";
 
 const routes = [
@@ -27,6 +29,20 @@ const routes = [
           title: "欢迎页",
         },
         component: Welcome,
+      },
+      {
+        path: "/user",
+        meta: {
+          title: "用户管理",
+        },
+        component: User,
+      },
+      {
+        path: "/dept",
+        meta: {
+          title: "部门管理",
+        },
+        component: Dept,
       },
     ],
   },

@@ -1,5 +1,5 @@
 <template>
-  <template v-for="menu in menuList">
+  <template v-for="menu in userMenuList">
     <el-sub-menu
       v-if="
         menu.children &&
@@ -12,7 +12,7 @@
         <i :class="menu.icon"></i>
         <span style="margin-right: 80px">{{ menu.menuName }}</span>
       </template>
-      <tree-menu :menuList="menu.children" />
+      <tree-menu :userMenuList="menu.children" />
     </el-sub-menu>
     <el-menu-item
       v-else-if="menu.menuType == 1"
@@ -27,7 +27,7 @@
 export default {
   name: "TreeMenu",
   props: {
-    menuList: {
+    userMenuList: {
       type: Array,
       default() {
         return [];

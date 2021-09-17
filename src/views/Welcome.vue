@@ -4,7 +4,7 @@
       <el-row v-if="show">
         <el-col :span="7">
           <el-card shadow="hover">
-            <h3>Welcome,{{ username }}!</h3>
+            <h3>Welcome,{{ userName }}!</h3>
             <p>This is Welcome Page</p>
           </el-card>
         </el-col>
@@ -31,10 +31,10 @@
             </template>
             <div class="card-body-user">
               <p>
-                <label>ID:</label> <span>{{ user_id }}</span>
+                <label>ID:</label> <span>{{ userId }}</span>
               </p>
               <p>
-                <label>用户名:</label> <span>{{ username }}</span>
+                <label>用户名:</label> <span>{{ userName }}</span>
               </p>
             </div>
           </el-card>
@@ -62,8 +62,8 @@ export default {
   data() {
     return {
       show: false,
-      user_id: window.sessionStorage.getItem("id"),
-      username: window.sessionStorage.getItem("username"),
+      userId: this.$store.state.userInfo.id,
+      userName: this.$store.state.userInfo.userName,
       proCount: 3,
     };
   },

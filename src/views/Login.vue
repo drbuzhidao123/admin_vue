@@ -87,11 +87,11 @@ export default {
       this.$refs.userForm.validate((valid) => {
         if (valid) {
           this.$api.login(this.user).then((res) => {
-            console.log(res);
             //存储登录信息在store和localstorage,存在localstorage是为了存储更稳定因为vuex只要一刷新就没了信息。
-            //this.$store.commit("saveUserInfo", res);
-            //this.$storage.setItem("token", res.token);
-            //this.$router.push("/welcome");
+            this.$store.commit("saveUserInfo", res);
+            this.$storage.setItem("token", res.token);
+            this.$message.success("登录成功！");
+            this.$router.push("/welcome");
           });
         } else {
           return false;

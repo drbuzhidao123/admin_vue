@@ -19,7 +19,7 @@
             <span style="margin-left: 55px">后台管理系统</span>
           </template>
         </el-menu-item>
-        <tree-menu :menuList="menuList"></tree-menu>
+        <tree-menu :userMenuList="userMenuList"></tree-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -61,10 +61,13 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="email">
-                  <i class="el-icon-edit"></i>邮箱：{{ userInfo.userEmail }}
+                  <i class="el-icon-user"></i>用户：{{ userInfo.userName }}
+                </el-dropdown-item>
+                <el-dropdown-item command="email">
+                  <i class="el-icon-user"></i>邮箱：{{ userInfo.userEmail }}
                 </el-dropdown-item>
                 <el-dropdown-item command="logout">
-                  <i class="el-icon-edit"></i>退出
+                  <i class="el-icon-close"></i>退出
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -137,10 +140,11 @@ export default {
       togicon: "el-icon-s-fold",
       editDialogVisible: false,
       noticeCount: 0,
-      menuList: [],
+      userMenuList: [],
       userInfo: {
-        userName: "jack",
-        userEmail: "jack@163.com",
+        userId: this.$storage.getItem("userInfo").id,
+        userName: this.$storage.getItem("userInfo").userName,
+        userEmail: this.$storage.getItem("userInfo").email,
       },
       password: "",
       editForm: {
@@ -158,7 +162,7 @@ export default {
   created() {},
   mounted() {
     this.getNoticeCount();
-    this.getMenuList();
+    this.getUserMenuList();
   },
   methods: {
     editDiglogClose() {
@@ -168,7 +172,6 @@ export default {
       let _this = this;
       this.axios.post("admin/getUser", { id: id }).then(function (res) {
         if (res.data.status == 1) {
-          //delete res.data.result.password;
           _this.editForm = res.data.result;
           _this.editForm.password = "";
           _this.editDialogVisible = true;
@@ -207,15 +210,18 @@ export default {
       const count = await this.$api.noticeCount();
       this.noticeCount = count;
     },
-    async getMenuList() {
-      const menuList = await this.$api.getMenuList();
-      this.menuList = menuList;
+    async getUserMenuList() {
+      const userMenuList = await this.$api.getUserMenuList({
+        userId: this.userInfo.userId,
+      });
+      this.userMenuList = userMenuList;
     },
     handleLogout(command) {
       if (command == "email") {
         return;
       }
       this.$store.commit("saveUserInfo", "");
+      this.$storage.clearItem("token", "");
       this.userInfo = null;
       this.$router.push("/login");
     },
