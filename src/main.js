@@ -8,9 +8,11 @@ import "./assets/css/global.css";
 import request from "./util/request";
 import storage from "./util/storage";
 import api from "./api";
+import secret from "./util/secret";
 
 const app = createApp(App);
 app.config.globalProperties.$request = request;
 app.config.globalProperties.$api = api;
 app.config.globalProperties.$storage = storage;
+app.config.globalProperties.$secret = secret;
 app.use(store).use(router).use(ElementPlus).mount("#app");

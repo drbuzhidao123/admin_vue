@@ -23,7 +23,7 @@
           <el-button
             type="primary"
             icon="el-icon-circle-plus-outline"
-            @click="handleOpen()"
+            @click="handleCreate()"
             >创建部门</el-button
           >
         </el-col>
@@ -55,6 +55,7 @@
         </el-table-column>
       </el-table>
     </el-card>
+    <!--添加与编辑对话框-->
     <el-dialog
       :title="action == 'create' ? '创建部门' : '编辑部门'"
       v-model="showModal"
@@ -69,7 +70,7 @@
           <el-cascader
             placeholder="请选择上级部门"
             v-model="deptForm.parentId"
-            :props="{ checkStrictly: true, value: '_id', label: 'deptName' }"
+            :props="{ checkStrictly: true, value: 'id', label: 'deptName' }"
             clearable
             :options="deptList"
             :show-all-levels="true"
@@ -89,9 +90,9 @@
           >
             <el-option
               v-for="item in userList"
-              :key="item.userId"
+              :key="item.id"
               :label="item.userName"
-              :value="`${item.userId}/${item.userName}/${item.userEmail}`"
+              :value="`${item.id}/${item.userName}/${item.email}`"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -120,10 +121,6 @@ export default {
       queryInfo: {
         //查询参数
         query: "",
-        //当前页码
-        pagenum: 1,
-        //每页显示的条数
-        pagesize: 10,
       },
       columns: [
         {
@@ -144,10 +141,11 @@ export default {
         },
       ],
       deptList: [],
+      searchDeptList: [],
       action: "create",
       showModal: false,
       deptForm: {
-        parentId: [null],
+        parentId: 1,
       },
       userList: [],
       rules: {
@@ -181,21 +179,24 @@ export default {
   },
   methods: {
     async getDeptList() {
-      let list = await this.$api.getDeptList(this.queryInfo);
-      this.deptList = list;
+      this.deptList = await this.$api.getDeptList().then((res) => {
+        console.log(res);
+      });
+    },
+    async getSearchDeptList() {
+      this.searchDeptList = await this.$api.getDeptList(this.queryInfo);
     },
     async getAllUserList() {
       this.userList = await this.$api.getAllUserList();
     },
     handleUser(val) {
-      console.log("=>", val);
       const [userId, userName, userEmail] = val.split("/");
       Object.assign(this.deptForm, { userId, userName, userEmail });
     },
     handleReset(form) {
       this.$refs[form].resetFields();
     },
-    handleOpen() {
+    handleCreate() {
       this.action = "create";
       this.showModal = true;
     },
@@ -203,14 +204,16 @@ export default {
       this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
+        //nextTick用于数据变化后dom结构立刻改变
         Object.assign(this.deptForm, row, {
-          user: `${row.userId}/${row.userName}/${row.userEmail}`,
+          //获取当前行的对象数据添加到表中
+          user: `${row.id}/${row.userName}/${row.email}`,
         });
       });
     },
-    async handleDel(_id) {
+    async handleDel(id) {
       this.action = "delete";
-      await this.$api.deptOperate({ _id, action: this.action });
+      await this.$api.delDept(id);
       this.$message.success("删除成功");
       this.getDeptList();
     },
@@ -221,10 +224,17 @@ export default {
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
         if (valid) {
-          let params = { ...this.deptForm, action: this.action };
+          let params = this.deptForm;
+          params.userId = parseInt(params.userId);
           delete params.user;
-          await this.$api.deptOperate(params);
-          this.$message.success("操作成功");
+          if (this.action == "create") {
+            await this.$api.addDept(params).then((res) => {
+              console.log(res);
+              this.$message.success("创建成功");
+            });
+          } else {
+            await this.$api.editDept(params);
+          }
           this.handleClose();
           this.getDeptList();
         }
@@ -233,8 +243,10 @@ export default {
   },
 };
 </script>
-
 <style scoped lang="scss">
+.el-form {
+  text-align: left;
+}
 .el-card {
   .el-row {
     text-align: left;

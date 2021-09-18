@@ -36,6 +36,14 @@ export default {
       mock: false,
     });
   },
+  getAllUserList(params) {
+    return request({
+      url: "/user/getAllUserList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   addUser(params) {
     return request({
       url: "/user/addUser",
@@ -47,6 +55,22 @@ export default {
   getDeptList(params) {
     return request({
       url: "/dept/getDeptList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  addDept(params) {
+    return request({
+      url: "/dept/addDept",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  delDept(params) {
+    return request({
+      url: "/dept/delDept",
       method: "post",
       data: params,
       mock: false,
