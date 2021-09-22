@@ -68,6 +68,14 @@ export default {
       mock: false,
     });
   },
+  editDept(params) {
+    return request({
+      url: "/dept/editDept",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   delDept(params) {
     return request({
       url: "/dept/delDept",

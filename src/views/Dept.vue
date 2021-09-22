@@ -70,7 +70,11 @@
           <el-cascader
             placeholder="请选择上级部门"
             v-model="deptForm.parentId"
-            :props="{ checkStrictly: true, value: 'id', label: 'deptName' }"
+            :props="{
+              checkStrictly: true,
+              value: 'id',
+              label: 'deptName',
+            }"
             clearable
             :options="deptList"
             :show-all-levels="true"
@@ -92,7 +96,7 @@
               v-for="item in userList"
               :key="item.id"
               :label="item.userName"
-              :value="`${item.id}/${item.userName}/${item.email}`"
+              :value="`${item.id}/${item.userName}/${item.userEmail}`"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -179,12 +183,7 @@ export default {
   },
   methods: {
     async getDeptList() {
-      this.deptList = await this.$api.getDeptList().then((res) => {
-        console.log(res);
-      });
-    },
-    async getSearchDeptList() {
-      this.searchDeptList = await this.$api.getDeptList(this.queryInfo);
+      this.deptList = await this.$api.getDeptList(this.queryInfo);
     },
     async getAllUserList() {
       this.userList = await this.$api.getAllUserList();
@@ -212,8 +211,7 @@ export default {
       });
     },
     async handleDel(id) {
-      this.action = "delete";
-      await this.$api.delDept(id);
+      await this.$api.delDept({ id: id });
       this.$message.success("删除成功");
       this.getDeptList();
     },
@@ -228,12 +226,13 @@ export default {
           params.userId = parseInt(params.userId);
           delete params.user;
           if (this.action == "create") {
-            await this.$api.addDept(params).then((res) => {
-              console.log(res);
-              this.$message.success("创建成功");
-            });
+            console.log(this.deptForm);
           } else {
-            await this.$api.editDept(params);
+            await this.$api.editDept(params).then((res) => {
+              if (res) {
+                this.$message.success("更新成功");
+              }
+            });
           }
           this.handleClose();
           this.getDeptList();
