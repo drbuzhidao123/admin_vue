@@ -59,6 +59,7 @@
     <el-dialog
       :title="action == 'create' ? '创建部门' : '编辑部门'"
       v-model="showModal"
+      @close="handleClose"
     >
       <el-form
         ref="dialogForm"
@@ -145,18 +146,17 @@ export default {
         },
       ],
       deptList: [],
-      searchDeptList: [],
       action: "create",
       showModal: false,
       deptForm: {
-        parentId: 1,
+        parentId: [null],
       },
       userList: [],
       rules: {
         parentId: [
           {
             required: true,
-            message: "请选择上级部门",
+            message: "请输入上级部门",
             trigger: "blur",
           },
         ],
@@ -206,12 +206,14 @@ export default {
         //nextTick用于数据变化后dom结构立刻改变
         Object.assign(this.deptForm, row, {
           //获取当前行的对象数据添加到表中
-          user: `${row.id}/${row.userName}/${row.email}`,
+          user: `${row.userName}`,
         });
       });
     },
     async handleDel(id) {
-      await this.$api.delDept({ id: id });
+      await this.$api.delDept({ id: id }).then((res) => {
+        console.log(res);
+      });
       this.$message.success("删除成功");
       this.getDeptList();
     },
@@ -226,9 +228,15 @@ export default {
           params.userId = parseInt(params.userId);
           delete params.user;
           if (this.action == "create") {
-            console.log(this.deptForm);
+            await this.$api.addDept(params).then((res) => {
+              console.log(res);
+              if (res) {
+                this.$message.success("创建成功");
+              }
+            });
           } else {
             await this.$api.editDept(params).then((res) => {
+              console.log(res);
               if (res) {
                 this.$message.success("更新成功");
               }
