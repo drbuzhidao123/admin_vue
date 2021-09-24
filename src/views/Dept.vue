@@ -153,13 +153,6 @@ export default {
       },
       userList: [],
       rules: {
-        parentId: [
-          {
-            required: true,
-            message: "请输入上级部门",
-            trigger: "blur",
-          },
-        ],
         deptName: [
           {
             required: true,
@@ -239,6 +232,7 @@ export default {
               console.log(res);
               if (res) {
                 this.$message.success("更新成功");
+                delete this.deptForm["id"];
               }
             });
           }
