@@ -222,17 +222,15 @@ export default {
           delete params.user;
           if (this.action == "create") {
             await this.$api.addDept(params).then((res) => {
-              console.log(res);
               if (res) {
                 this.$message.success("创建成功");
               }
             });
           } else {
             await this.$api.editDept(params).then((res) => {
-              console.log(res);
+              delete this.deptForm["id"];
               if (res) {
                 this.$message.success("更新成功");
-                delete this.deptForm["id"];
               }
             });
           }

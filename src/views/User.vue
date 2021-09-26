@@ -1,185 +1,142 @@
 <template>
   <div class="user">
-    <transition name="fade">
-      <el-card v-if="show">
-        <!-- 搜索&添加 -->
-        <el-row :gutter="20">
-          <el-col :span="7">
-            <el-form>
-              <el-input
-                v-model="queryInfo.query"
-                placeholder="请输入内容"
-                clearable
-              >
-                <template #append>
-                  <el-button
-                    icon="el-icon-search"
-                    @click="getUserList()"
-                  ></el-button>
-                </template>
-              </el-input>
-            </el-form>
-          </el-col>
-          <el-col :span="4">
+    <el-card>
+      <!-- 搜索&添加 -->
+      <el-row :gutter="20">
+        <el-col :span="7">
+          <el-form>
+            <el-input
+              v-model="queryInfo.query"
+              placeholder="请输入内容"
+              clearable
+            >
+              <template #append>
+                <el-button
+                  icon="el-icon-search"
+                  @click="getUserList()"
+                ></el-button>
+              </template>
+            </el-input>
+          </el-form>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            type="primary"
+            icon="el-icon-circle-plus-outline"
+            @click="handleCreate()"
+            >添加</el-button
+          >
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            @click="dialogVisible = true"
+            >批量删除</el-button
+          >
+        </el-col>
+      </el-row>
+      <!-- 列表 -->
+      <el-table
+        ref="multipleTable"
+        :data="userList"
+        border
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55"> </el-table-column>
+        <el-table-column prop="id" label="id"></el-table-column>
+        <el-table-column prop="userName" label="用户名"></el-table-column>
+        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column prop="mobile" label="手机号码"></el-table-column>
+        <el-table-column prop="role" label="角色"></el-table-column>
+        <el-table-column prop="status" label="状态">
+          <template #default="scope">
+            <el-switch
+              @click="changestatus(scope.row)"
+              v-model="scope.row.status"
+              :active-value="1"
+              :inactive-value="0"
+            >
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建日期"></el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
             <el-button
               type="primary"
-              icon="el-icon-circle-plus-outline"
-              @click="dialogVisible = true"
-              >添加</el-button
-            >
+              icon="el-icon-edit"
+              size="mini"
+              @click="handleEdit(scope.row)"
+            ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
-              @click="dialogVisible = true"
-              >批量删除</el-button
-            >
-          </el-col>
-        </el-row>
-        <!-- 列表 -->
-        <el-table
-          ref="multipleTable"
-          :data="userList"
-          border
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" width="55"> </el-table-column>
-          <el-table-column prop="id" label="id"></el-table-column>
-          <el-table-column prop="userName" label="用户名"></el-table-column>
-          <el-table-column prop="email" label="邮箱"></el-table-column>
-          <el-table-column prop="mobile" label="手机号码"></el-table-column>
-          <el-table-column prop="role" label="角色"></el-table-column>
-          <el-table-column prop="status" label="状态">
-            <template #default="scope">
-              <el-switch
-                @click="changestatus(scope.row)"
-                v-model="scope.row.status"
-                :active-value="1"
-                :inactive-value="0"
-              >
-              </el-switch>
-            </template>
-          </el-table-column>
-          <el-table-column prop="createTime" label="创建日期"></el-table-column>
-          <el-table-column label="操作">
-            <template #default="scope">
+              size="mini"
+              @click="removeById(scope.row.id)"
+            ></el-button>
+            <el-tooltip effect="light" content="分配角色" placement="top">
               <el-button
-                type="primary"
-                icon="el-icon-edit"
+                type="warning"
+                icon="el-icon-setting"
                 size="mini"
-                @click="showEditDialog(scope.row.id)"
+                @click="showSetDialog(scope.row.id)"
               ></el-button>
-              <el-button
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                @click="removeById(scope.row.id)"
-              ></el-button>
-              <el-tooltip effect="light" content="分配角色" placement="top">
-                <el-button
-                  type="warning"
-                  icon="el-icon-setting"
-                  size="mini"
-                  @click="showSetDialog(scope.row.id)"
-                ></el-button>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页 -->
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="queryInfo.pagenum"
-          :page-sizes="[1, 2, 5, 10]"
-          :page-size="queryInfo.pagesize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        >
-        </el-pagination>
-      </el-card>
-    </transition>
-    <!-- 添加用户对话框 -->
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 2, 5, 10]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      >
+      </el-pagination>
+    </el-card>
+    <!-- 添加和编辑用户对话框 -->
     <el-dialog
-      title="添加用户"
-      v-model="dialogVisible"
+      :title="action == 'create' ? '添加用户' : '编辑用户'"
       width="30%"
-      :before-close="handleClose"
-      @close="addDiglogClose()"
+      v-model="showModal"
+      @close="handleClose"
     >
       <el-form
-        :model="addForm"
-        :rules="addFormRules"
-        ref="addFormRef"
+        :model="userForm"
+        :rules="userFormRules"
+        ref="dialogForm"
         label-width="90px"
       >
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="addForm.userName" autocomplete="off"></el-input>
+          <el-input v-model="userForm.userName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="addForm.email" autocomplete="off"></el-input>
+          <el-input v-model="userForm.email" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
             type="password"
-            v-model="addForm.password"
+            v-model="userForm.password"
             autocomplete="off"
           ></el-input>
         </el-form-item>
         <el-form-item label="性别">
-          <el-radio-group v-model="addForm.sex" prop="sex">
+          <el-radio-group v-model="userForm.sex" prop="sex">
             <el-radio label="男性" :value="0"></el-radio>
             <el-radio label="女性" :value="1"></el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="手机号码" prop="mobile">
-          <el-input v-model="addForm.mobile" autocomplete="off"></el-input>
+          <el-input v-model="userForm.mobile" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addUser()">确 定</el-button>
-        </span>
-      </template>
-    </el-dialog>
-    <!-- 编辑用户对话框 -->
-    <el-dialog
-      title="编辑用户"
-      v-model="editDialogVisible"
-      width="30%"
-      :before-close="handleClose"
-      @close="editDiglogClose()"
-    >
-      <el-form
-        :model="editForm"
-        :rules="editFormRules"
-        ref="editFormRef"
-        label-width="90px"
-      >
-        <el-form-item label="用户名" prop="username">
-          <el-input
-            v-model="editForm.username"
-            autocomplete="off"
-            disabled
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input
-            type="password"
-            v-model="editForm.password"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="手机号码" prop="mobile">
-          <el-input v-model="editForm.mobile" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editUser()">确 定</el-button>
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -223,7 +180,6 @@ export default {
   name: "user",
   data() {
     return {
-      show: false,
       //列表传递的参数
       queryInfo: {
         //查询参数
@@ -233,22 +189,21 @@ export default {
         //每页显示的条数
         pagesize: 10,
       },
-      userList: [],
       total: 0, //总条数
-      dialogVisible: false,
-      editDialogVisible: false,
+      userList: [],
+      action: "create",
+      showModal: false,
       setDialogVisible: false,
       checkgroup: { group_id: -1, title: "请选择角色" },
-      authGroupList: [],
       //添加用户
-      addForm: {
+      userForm: {
         userName: "",
         email: "",
         password: "",
         mobile: "",
         sex: 0,
       },
-      addFormRules: {
+      userFormRules: {
         userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
@@ -260,53 +215,64 @@ export default {
           { min: 6, max: 15, message: "输入的手机号码是11位" },
         ],
       },
-      //编辑用户
-      editForm: {
-        userName: "",
-        password: "",
-        mobile: "",
-      },
-      editFormRules: {
-        userName: [
-          { required: true, message: "请输入用户名", trigger: "blur" },
-          { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
-        ],
-        mobile: [
-          { required: true, message: "请输入手机号码", trigger: "blur" },
-          { min: 6, max: 15, message: "输入的手机号码是11位" },
-        ],
-      },
     };
   },
   components: {},
   created() {},
   mounted() {
-    this.fadeIn();
     this.getUserList();
   },
   methods: {
-    fadeIn() {
-      this.show = !this.show;
-    },
     async getUserList() {
       let userList = await this.$api.getUserList(this.queryInfo);
       this.userList = userList.list;
       this.total = userList.total;
     },
-    //添加用户
-    async addUser() {
-      await this.$refs.addFormRef.validate((valid) => {
+    handleReset(form) {
+      this.$refs[form].resetFields();
+    },
+    handleCreate() {
+      this.action = "create";
+      this.showModal = true;
+    },
+    handleEdit(row) {
+      this.action = "edit";
+      this.showModal = true;
+      this.$nextTick(() => {
+        //nextTick用于数据变化后dom结构立刻改变
+        Object.assign(this.deptForm, row);
+      });
+    },
+    handleClose() {
+      this.showModal = false;
+      this.handleReset("dialogForm");
+    },
+
+    handleSubmit() {
+      this.$refs.dialogForm.validate(async (valid) => {
         if (valid) {
-          this.$api.addUser().then((res) => {
-            console.log(res);
-          });
-        } else {
-          console.log("error submit!!");
-          return false;
+          let params = this.deptForm;
+          params.userId = parseInt(params.userId);
+          delete params.user;
+          if (this.action == "create") {
+            await this.$api.addDept(params).then((res) => {
+              if (res) {
+                this.$message.success("创建成功");
+              }
+            });
+          } else {
+            await this.$api.editDept(params).then((res) => {
+              if (res) {
+                this.$message.success("更新成功");
+                delete this.deptForm["id"];
+              }
+            });
+          }
+          this.handleClose();
+          this.getDeptList();
         }
       });
     },
-    showEditDialog() {},
     //监听每页条数的改变
     handleSizeChange(val) {
       this.queryInfo.pagesize = val;
@@ -316,14 +282,6 @@ export default {
       console.log(`当前页: ${val}`);
       this.queryInfo.pagenum = val;
       this.getUserList();
-    },
-    //添加用户对话框关闭
-    addDiglogClose() {
-      this.$refs.addFormRef.resetFields();
-    },
-    //编辑对话框关闭
-    editDiglogClose() {
-      this.$refs.editFormRef.resetFields();
     },
   },
 };

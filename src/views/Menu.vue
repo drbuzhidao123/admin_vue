@@ -130,7 +130,7 @@
   </div>
 </template>
 <script>
-import utils from "../utils/utils";
+import utils from "../util/utils";
 export default {
   name: "menu",
   data() {
@@ -260,6 +260,7 @@ export default {
           let { action, menuForm } = this;
           let params = { ...menuForm, action };
           let res = await this.$api.menuSubmit(params);
+          console.log(res);
           this.showModal = false;
           this.$message.success("操作成功");
           this.handleReset("dialogForm");

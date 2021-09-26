@@ -3,6 +3,7 @@ import Index from "../views/Index.vue";
 import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
 import User from "../views/User.vue";
+import Menu from "../views/Menu.vue";
 import Dept from "../views/Dept.vue";
 import storage from "../util/storage";
 
@@ -36,6 +37,13 @@ const routes = [
           title: "用户管理",
         },
         component: User,
+      },
+      {
+        path: "/menu",
+        meta: {
+          title: "用户管理",
+        },
+        component: Menu,
       },
       {
         path: "/dept",
