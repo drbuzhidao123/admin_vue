@@ -196,7 +196,6 @@ export default {
       this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
-        //nextTick用于数据变化后dom结构立刻改变
         Object.assign(this.deptForm, row, {
           //获取当前行的对象数据添加到表中
           user: `${row.userName}`,
@@ -221,6 +220,7 @@ export default {
           params.userId = parseInt(params.userId);
           delete params.user;
           if (this.action == "create") {
+            delete this.deptForm["id"];
             await this.$api.addDept(params).then((res) => {
               if (res) {
                 this.$message.success("创建成功");
@@ -228,7 +228,6 @@ export default {
             });
           } else {
             await this.$api.editDept(params).then((res) => {
-              delete this.deptForm["id"];
               if (res) {
                 this.$message.success("更新成功");
               }

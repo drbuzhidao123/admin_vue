@@ -1,29 +1,37 @@
 <template>
   <div class="user-manage">
-    <div class="query-form">
-      <el-form ref="form" :inline="true" :model="queryForm">
-        <el-form-item label="菜单名称" prop="menuName">
-          <el-input v-model="queryForm.menuName" placeholder="请输入菜单名称" />
-        </el-form-item>
-        <el-form-item label="菜单状态" prop="menuState">
-          <el-select v-model="queryForm.menuState">
-            <el-option :value="1" label="正常"></el-option>
-            <el-option :value="2" label="停用"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="getMenuList">查询</el-button>
-          <el-button @click="handleReset('form')">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-    <div class="base-table">
-      <div class="action">
-        <el-button type="primary" @click="handleAdd(1)">新增</el-button>
-      </div>
+    <el-card>
+      <!-- 搜索&添加 -->
+      <el-row :gutter="20">
+        <el-col :span="7">
+          <el-form>
+            <el-input
+              v-model="queryInfo.query"
+              placeholder="请输入内容"
+              clearable
+            >
+              <template #append>
+                <el-button
+                  icon="el-icon-search"
+                  @click="getMenuList()"
+                ></el-button>
+              </template>
+            </el-input>
+          </el-form>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            type="primary"
+            icon="el-icon-circle-plus-outline"
+            @click="handleCreate()"
+            >创建</el-button
+          >
+        </el-col>
+      </el-row>
+      <!--列表-->
       <el-table
         :data="menuList"
-        row-key="_id"
+        row-key="id"
         :tree-props="{ children: 'children' }"
       >
         <el-table-column
@@ -38,7 +46,7 @@
         <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button
-              @click="handleAdd(2, scope.row)"
+              @click="handleCreate(2, scope.row)"
               type="primary"
               size="mini"
               >新增</el-button
@@ -55,8 +63,8 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
-    <el-dialog title="用户新增" v-model="showModal">
+    </el-card>
+    <el-dialog title="菜单新增" v-model="showModal">
       <el-form
         ref="dialogForm"
         :model="menuForm"
@@ -67,7 +75,7 @@
           <el-cascader
             v-model="menuForm.parentId"
             :options="menuList"
-            :props="{ checkStrictly: true, value: '_id', label: 'menuName' }"
+            :props="{ checkStrictly: true, value: 'id', label: 'menuName' }"
             clearable
           />
           <span>不选，则直接创建一级菜单</span>
@@ -86,7 +94,7 @@
           prop="icon"
           v-show="menuForm.menuType == 1"
         >
-          <el-input v-model="menuForm.icon" placeholder="请输入岗位" />
+          <el-input v-model="menuForm.icon" placeholder="请输入菜单图标" />
         </el-form-item>
         <el-form-item
           label="路由地址"
@@ -111,10 +119,10 @@
         </el-form-item>
         <el-form-item
           label="菜单状态"
-          prop="menuState"
+          prop="state"
           v-show="menuForm.menuType == 1"
         >
-          <el-radio-group v-model="menuForm.menuState">
+          <el-radio-group v-model="menuForm.state">
             <el-radio :label="1">正常</el-radio>
             <el-radio :label="2">停用</el-radio>
           </el-radio-group>
@@ -135,8 +143,9 @@ export default {
   name: "menu",
   data() {
     return {
-      queryForm: {
-        menuState: 1,
+      queryInfo: {
+        query: "",
+        state: 1,
       },
       menuList: [],
       columns: [
@@ -173,7 +182,7 @@ export default {
         },
         {
           label: "菜单状态",
-          prop: "menuState",
+          prop: "state",
           width: 90,
           formatter(row, column, value) {
             return {
@@ -194,7 +203,7 @@ export default {
       menuForm: {
         parentId: [null],
         menuType: 1,
-        menuState: 1,
+        state: 1,
       },
       action: "",
       rules: {
@@ -221,7 +230,7 @@ export default {
     // 菜单列表初始化
     async getMenuList() {
       try {
-        let list = await this.$api.getMenuList(this.queryForm);
+        let list = await this.$api.getMenuList(this.queryInfo);
         this.menuList = list;
       } catch (e) {
         throw new Error(e);
@@ -232,18 +241,17 @@ export default {
       this.$refs[form].resetFields();
     },
     // 新增菜单
-    handleAdd(type, row) {
+    handleCreate(type, row) {
       this.showModal = true;
-      this.action = "add";
       if (type == 2) {
         this.menuForm.parentId = [...row.parentId, row._id].filter(
+          //避免空
           (item) => item
         );
       }
     },
     handleEdit(row) {
       this.showModal = true;
-      this.action = "edit";
       this.$nextTick(() => {
         Object.assign(this.menuForm, row);
       });
@@ -257,10 +265,21 @@ export default {
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
         if (valid) {
-          let { action, menuForm } = this;
-          let params = { ...menuForm, action };
-          let res = await this.$api.menuSubmit(params);
-          console.log(res);
+          let params = this.menuForm;
+          if (this.action == "create") {
+            delete this.deptForm["id"];
+            await this.$api.addMenu(params).then((res) => {
+              if (res) {
+                this.$message.success("创建成功");
+              }
+            });
+          } else {
+            await this.$api.editMenu(params).then((res) => {
+              if (res) {
+                this.$message.success("更新成功");
+              }
+            });
+          }
           this.showModal = false;
           this.$message.success("操作成功");
           this.handleReset("dialogForm");
@@ -277,4 +296,20 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style scoped lang="scss">
+.el-form {
+  text-align: left;
+}
+.el-card {
+  .el-row {
+    text-align: left;
+  }
+  .el-table {
+    margin-top: 25px;
+    font-size: 12px;
+  }
+  .el-pagination {
+    padding: 25px 0 5px 0;
+  }
+}
+</style>

@@ -84,4 +84,40 @@ export default {
       mock: false,
     });
   },
+
+  getMenuList(params) {
+    return request({
+      url: "/menu/getMenuList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  addMenu(params) {
+    return request({
+      url: "/menu/addMenu",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  editMenu(params) {
+    return request({
+      url: "/menu/editMenu",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  deleteMenu(params) {
+    return request({
+      url: "/menu/deleteMenu",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
 };

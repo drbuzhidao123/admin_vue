@@ -4,6 +4,7 @@ import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
 import User from "../views/User.vue";
 import Menu from "../views/Menu.vue";
+import Role from "../views/Role.vue";
 import Dept from "../views/Dept.vue";
 import storage from "../util/storage";
 
@@ -19,34 +20,41 @@ const routes = [
   {
     path: "/index",
     component: Index,
-    redirect: "/welcome",
+    redirect: "/system/welcome",
     meta: {
       title: "首页",
     },
     children: [
       {
-        path: "/welcome",
+        path: "/system/welcome",
         meta: {
           title: "欢迎页",
         },
         component: Welcome,
       },
       {
-        path: "/user",
+        path: "/system/user",
         meta: {
           title: "用户管理",
         },
         component: User,
       },
       {
-        path: "/menu",
+        path: "/system/menu",
         meta: {
-          title: "用户管理",
+          title: "菜单管理",
         },
         component: Menu,
       },
       {
-        path: "/dept",
+        path: "/system/role",
+        meta: {
+          title: "角色管理",
+        },
+        component: Role,
+      },
+      {
+        path: "/system/dept",
         meta: {
           title: "部门管理",
         },
