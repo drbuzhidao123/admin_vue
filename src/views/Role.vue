@@ -1,20 +1,34 @@
 <template>
   <div class="role-manage">
-    <div class="query-form">
-      <el-form ref="form" :inline="true" :model="queryForm">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="queryForm.roleName" placeholder="请输入角色名称" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="getRoleList">查询</el-button>
-          <el-button @click="handleReset('form')">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-    <div class="base-table">
-      <div class="action">
-        <el-button type="primary" @click="handleAdd">创建</el-button>
-      </div>
+    <el-card>
+      <!-- 搜索&添加 -->
+      <el-row :gutter="20">
+        <el-col :span="7">
+          <el-form>
+            <el-input
+              v-model="queryInfo.query"
+              placeholder="请输入内容"
+              clearable
+            >
+              <template #append>
+                <el-button
+                  icon="el-icon-search"
+                  @click="getRoleList()"
+                ></el-button>
+              </template>
+            </el-input>
+          </el-form>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            type="primary"
+            icon="el-icon-circle-plus-outline"
+            @click="handleCreate()"
+            >创建</el-button
+          >
+        </el-col>
+      </el-row>
+      <!--列表-->
       <el-table :data="roleList">
         <el-table-column
           v-for="item in columns"
@@ -39,7 +53,7 @@
             <el-button
               type="danger"
               size="mini"
-              @click="handleDel(scope.row._id)"
+              @click="handleDel(scope.row.id)"
               >删除</el-button
             >
           </template>
@@ -53,8 +67,11 @@
         :page-size="pager.pageSize"
         @current-change="handleCurrentChange"
       />
-    </div>
-    <el-dialog title="用户新增" v-model="showModal">
+    </el-card>
+    <el-dialog
+      :title="action == 'create' ? '新增角色' : '编辑角色'"
+      v-model="showModal"
+    >
       <el-form
         ref="dialogForm"
         :model="roleForm"
@@ -91,7 +108,7 @@
             ref="tree"
             :data="menuList"
             show-checkbox
-            node-key="_id"
+            node-key="id"
             default-expand-all
             :props="{ label: 'menuName' }"
           >
@@ -115,8 +132,8 @@ export default {
   name: "role",
   data() {
     return {
-      queryForm: {
-        roleName: "",
+      queryInfo: {
+        query: "",
       },
       columns: [
         {
@@ -190,32 +207,28 @@ export default {
     // 角色列表初始化
     async getRoleList() {
       try {
-        let { list, page } = await this.$api.getRoleList({
-          ...this.queryForm,
+        let { list, total } = await this.$api.getRoleList({
+          ...this.queryInfo,
           ...this.pager,
         });
         this.roleList = list;
-        this.pager.total = page.total;
+        this.pager.total = total;
       } catch (e) {
         throw new Error(e);
       }
     },
     // 菜单列表初始化
     async getMenuList() {
-      try {
-        let list = await this.$api.getMenuList();
-        this.menuList = list;
-        this.getActionMap(list);
-      } catch (e) {
-        throw new Error(e);
-      }
+      let list = await this.$api.getMenuList({ query: "" });
+      this.menuList = list;
+      //this.getActionMap(list);
     },
     // 表单重置
     handleReset(form) {
       this.$refs[form].resetFields();
     },
     // 角色添加
-    handleAdd() {
+    handleCreate() {
       this.action = "create";
       this.showModal = true;
     },
@@ -225,15 +238,15 @@ export default {
       this.showModal = true;
       this.$nextTick(() => {
         this.roleForm = {
-          _id: row._id,
+          id: row.id,
           roleName: row.roleName,
           remark: row.remark,
         };
       });
     },
     // 角色删除
-    async handleDel(_id) {
-      await this.$api.roleOperate({ _id, action: "delete" });
+    async handleDel(id) {
+      await this.$api.delRole({ id: id });
       this.$message.success("删除成功");
       this.getRoleList();
     },
@@ -246,15 +259,24 @@ export default {
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
         if (valid) {
-          let { roleForm, action } = this;
-          let params = { ...roleForm, action };
-          let res = await this.$api.roleOperate(params);
-          if (res) {
-            this.showModal = false;
-            this.$message.success("创建成功");
-            this.handleReset("dialogForm");
-            this.getRoleList();
+          let params = this.roleForm;
+          if (this.action == "create") {
+            delete this.roleForm["id"];
+            await this.$api.addRole(params).then((res) => {
+              if (res) {
+                this.$message.success("创建成功");
+              }
+            });
+          } else {
+            await this.$api.editRole(params).then((res) => {
+              if (res) {
+                this.$message.success("更新成功");
+              }
+            });
           }
+          this.showModal = false;
+          this.handleReset("dialogForm");
+          this.getRoleList();
         }
       });
     },
@@ -263,7 +285,7 @@ export default {
       this.getRoleList();
     },
     handleOpenPermission(row) {
-      this.curRoleId = row._id;
+      this.curRoleId = row.id;
       this.curRoleName = row.roleName;
       this.showPermission = true;
       let { checkedKeys } = row.permissionList;
@@ -278,13 +300,13 @@ export default {
       let parentKeys = [];
       nodes.map((node) => {
         if (!node.children) {
-          checkedKeys.push(node._id);
+          checkedKeys.push(node.id);
         } else {
-          parentKeys.push(node._id);
+          parentKeys.push(node.id);
         }
       });
       let params = {
-        _id: this.curRoleId,
+        id: this.curRoleId,
         permissionList: {
           checkedKeys,
           halfCheckedKeys: parentKeys.concat(halfKeys),
@@ -301,7 +323,7 @@ export default {
         while (arr.length) {
           let item = arr.pop();
           if (item.children && item.action) {
-            actionMap[item._id] = item.menuName;
+            actionMap[item.id] = item.menuName;
           }
           if (item.children && !item.action) {
             deep(item.children);
@@ -315,4 +337,20 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style scoped lang="scss">
+.el-form {
+  text-align: left;
+}
+.el-card {
+  .el-row {
+    text-align: left;
+  }
+  .el-table {
+    margin-top: 25px;
+    font-size: 12px;
+  }
+  .el-pagination {
+    padding: 25px 0 5px 0;
+  }
+}
+</style>

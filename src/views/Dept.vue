@@ -203,9 +203,7 @@ export default {
       });
     },
     async handleDel(id) {
-      await this.$api.delDept({ id: id }).then((res) => {
-        console.log(res);
-      });
+      await this.$api.delDept({ id: id });
       this.$message.success("删除成功");
       this.getDeptList();
     },

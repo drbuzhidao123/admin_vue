@@ -112,9 +112,45 @@ export default {
     });
   },
 
-  deleteMenu(params) {
+  delMenu(params) {
     return request({
-      url: "/menu/deleteMenu",
+      url: "/menu/delMenu",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  getRoleList(params) {
+    return request({
+      url: "/role/getRoleList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  addRole(params) {
+    return request({
+      url: "/role/addRole",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  editRole(params) {
+    return request({
+      url: "/role/editRole",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  delRole(params) {
+    return request({
+      url: "/role/delRole",
       method: "post",
       data: params,
       mock: false,

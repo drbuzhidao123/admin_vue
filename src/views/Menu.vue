@@ -57,14 +57,18 @@
             <el-button
               type="danger"
               size="mini"
-              @click="handleDel(scope.row._id)"
+              @click="handleDel(scope.row.id)"
               >删除</el-button
             >
           </template>
         </el-table-column>
       </el-table>
     </el-card>
-    <el-dialog title="菜单新增" v-model="showModal">
+    <el-dialog
+      :title="action == 'create' ? '新增菜单' : '编辑菜单'"
+      v-model="showModal"
+      @close="handleClose"
+    >
       <el-form
         ref="dialogForm"
         :model="menuForm"
@@ -111,18 +115,11 @@
           <el-input v-model="menuForm.menuCode" placeholder="请输入权限标识" />
         </el-form-item>
         <el-form-item
-          label="组件路径"
-          prop="component"
-          v-show="menuForm.menuType == 1"
-        >
-          <el-input v-model="menuForm.component" placeholder="请输入组件路径" />
-        </el-form-item>
-        <el-form-item
           label="菜单状态"
-          prop="state"
+          prop="status"
           v-show="menuForm.menuType == 1"
         >
-          <el-radio-group v-model="menuForm.state">
+          <el-radio-group v-model="menuForm.status">
             <el-radio :label="1">正常</el-radio>
             <el-radio :label="2">停用</el-radio>
           </el-radio-group>
@@ -145,7 +142,7 @@ export default {
     return {
       queryInfo: {
         query: "",
-        state: 1,
+        status: 1,
       },
       menuList: [],
       columns: [
@@ -177,12 +174,8 @@ export default {
           prop: "path",
         },
         {
-          label: "组件路径",
-          prop: "component",
-        },
-        {
           label: "菜单状态",
-          prop: "state",
+          prop: "status",
           width: 90,
           formatter(row, column, value) {
             return {
@@ -203,9 +196,9 @@ export default {
       menuForm: {
         parentId: [null],
         menuType: 1,
-        state: 1,
+        status: 1,
       },
-      action: "",
+      action: "create",
       rules: {
         menuName: [
           {
@@ -230,8 +223,7 @@ export default {
     // 菜单列表初始化
     async getMenuList() {
       try {
-        let list = await this.$api.getMenuList(this.queryInfo);
-        this.menuList = list;
+        this.menuList = await this.$api.getMenuList(this.queryInfo);
       } catch (e) {
         throw new Error(e);
       }
@@ -242,6 +234,7 @@ export default {
     },
     // 新增菜单
     handleCreate(type, row) {
+      this.action = "create";
       this.showModal = true;
       if (type == 2) {
         this.menuForm.parentId = [...row.parentId, row._id].filter(
@@ -251,13 +244,14 @@ export default {
       }
     },
     handleEdit(row) {
+      this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
         Object.assign(this.menuForm, row);
       });
     },
-    async handleDel(_id) {
-      await this.$api.menuSubmit({ _id, action: "delete" });
+    async handleDel(id) {
+      await this.$api.delMenu({ id: id });
       this.$message.success("删除成功");
       this.getMenuList();
     },
@@ -267,7 +261,7 @@ export default {
         if (valid) {
           let params = this.menuForm;
           if (this.action == "create") {
-            delete this.deptForm["id"];
+            delete this.menuForm["id"];
             await this.$api.addMenu(params).then((res) => {
               if (res) {
                 this.$message.success("创建成功");
@@ -275,13 +269,13 @@ export default {
             });
           } else {
             await this.$api.editMenu(params).then((res) => {
+              console.log(res);
               if (res) {
                 this.$message.success("更新成功");
               }
             });
           }
           this.showModal = false;
-          this.$message.success("操作成功");
           this.handleReset("dialogForm");
           this.getMenuList();
         }
