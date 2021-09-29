@@ -90,8 +90,16 @@
             <el-radio :label="2">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="菜单名称" prop="menuName">
-          <el-input v-model="menuForm.menuName" placeholder="请输入菜单名称" />
+        <el-form-item
+          :label="menuForm.menuType == 1 ? '菜单名称' : '按钮名称'"
+          prop="menuName"
+        >
+          <el-input
+            v-model="menuForm.menuName"
+            :placeholder="
+              menuForm.menuType == 1 ? '请输入菜单名称' : '请输入按钮名称'
+            "
+          />
         </el-form-item>
         <el-form-item
           label="菜单图标"
@@ -209,7 +217,7 @@ export default {
           {
             min: 2,
             max: 10,
-            message: "长度在2-8个字符",
+            message: "长度在2-10个字符",
             trigger: "blur",
           },
         ],
@@ -237,10 +245,12 @@ export default {
       this.action = "create";
       this.showModal = true;
       if (type == 2) {
-        this.menuForm.parentId = [...row.parentId, row._id].filter(
-          //避免空
-          (item) => item
-        );
+        this.$nextTick(() => {
+          this.menuForm.parentId = [...row.parentId, row.id].filter(
+            //避免空
+            (item) => item
+          );
+        });
       }
     },
     handleEdit(row) {

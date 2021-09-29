@@ -284,11 +284,12 @@ export default {
       this.pager.pageNum = current;
       this.getRoleList();
     },
+    //权限弹框
     handleOpenPermission(row) {
       this.curRoleId = row.id;
       this.curRoleName = row.roleName;
       this.showPermission = true;
-      let { checkedKeys } = row.permissionList;
+      let checkedKeys = row.permissionList.split(",").map(Number);
       setTimeout(() => {
         this.$refs.tree.setCheckedKeys(checkedKeys);
       });
@@ -307,17 +308,16 @@ export default {
       });
       let params = {
         id: this.curRoleId,
-        permissionList: {
-          checkedKeys,
-          halfCheckedKeys: parentKeys.concat(halfKeys),
-        },
+        permissionList: [...parentKeys.concat(halfKeys), ...checkedKeys],
       };
-      await this.$api.updatePermission(params);
+      await this.$api.updatePermission(params).then((res) => {
+        console.log(res);
+      });
       this.showPermission = false;
       this.$message.success("设置成功");
       this.getRoleList();
     },
-    getActionMap(list) {
+    /*getActionMap(list) {
       let actionMap = {};
       const deep = (arr) => {
         while (arr.length) {
@@ -332,7 +332,7 @@ export default {
       };
       deep(JSON.parse(JSON.stringify(list)));
       this.actionMap = actionMap;
-    },
+    },*/
   },
 };
 </script>

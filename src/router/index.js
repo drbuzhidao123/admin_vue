@@ -20,13 +20,13 @@ const routes = [
   {
     path: "/index",
     component: Index,
-    redirect: "/system/welcome",
+    redirect: "/welcome",
     meta: {
       title: "首页",
     },
     children: [
       {
-        path: "/system/welcome",
+        path: "/welcome",
         meta: {
           title: "欢迎页",
         },
