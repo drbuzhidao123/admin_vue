@@ -261,7 +261,9 @@ export default {
       });
     },
     async handleDel(id) {
-      await this.$api.delMenu({ id: id });
+      await this.$api.delMenu({ id: id }).then((res) => {
+        console.log(res);
+      });
       this.$message.success("删除成功");
       this.getMenuList();
     },

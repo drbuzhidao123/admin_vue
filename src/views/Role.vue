@@ -111,6 +111,7 @@
             node-key="id"
             default-expand-all
             :props="{ label: 'menuName' }"
+            @check-change="handleTree()"
           >
           </el-tree>
         </el-form-item>
@@ -221,7 +222,7 @@ export default {
     async getMenuList() {
       let list = await this.$api.getMenuList({ query: "" });
       this.menuList = list;
-      //this.getActionMap(list);
+      this.getActionMap(list);
     },
     // 表单重置
     handleReset(form) {
@@ -284,31 +285,28 @@ export default {
       this.pager.pageNum = current;
       this.getRoleList();
     },
+
+    handleTree() {
+      //console.log(this.$refs.tree.getCheckedKeys());
+    },
     //权限弹框
     handleOpenPermission(row) {
       this.curRoleId = row.id;
       this.curRoleName = row.roleName;
       this.showPermission = true;
-      let checkedKeys = row.permissionList.split(",").map(Number);
+      let checkedKeys = row.checkedKeys.split(",").map(Number);
       setTimeout(() => {
         this.$refs.tree.setCheckedKeys(checkedKeys);
       });
     },
     async handlePermissionSubmit() {
-      let nodes = this.$refs.tree.getCheckedNodes();
       let halfKeys = this.$refs.tree.getHalfCheckedKeys();
-      let checkedKeys = [];
-      let parentKeys = [];
-      nodes.map((node) => {
-        if (!node.children) {
-          checkedKeys.push(node.id);
-        } else {
-          parentKeys.push(node.id);
-        }
-      });
+      let checkedKeys = this.$refs.tree.getCheckedKeys();
       let params = {
         id: this.curRoleId,
-        permissionList: [...parentKeys.concat(halfKeys), ...checkedKeys],
+        permissionList: [...halfKeys, ...checkedKeys],
+        checkedKeys: checkedKeys,
+        halfCheckedKeys: halfKeys,
       };
       await this.$api.updatePermission(params).then((res) => {
         console.log(res);
@@ -317,7 +315,7 @@ export default {
       this.$message.success("设置成功");
       this.getRoleList();
     },
-    /*getActionMap(list) {
+    getActionMap(list) {
       let actionMap = {};
       const deep = (arr) => {
         while (arr.length) {
@@ -332,7 +330,7 @@ export default {
       };
       deep(JSON.parse(JSON.stringify(list)));
       this.actionMap = actionMap;
-    },*/
+    },
   },
 };
 </script>
