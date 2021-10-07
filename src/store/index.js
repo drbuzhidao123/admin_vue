@@ -3,7 +3,8 @@ import mutations from "./mutations";
 import storage from "./../util/storage";
 
 const state = {
-  userInfo: "" | storage.getItem("userInfo"), //用户信息
+  userInfo: storage.getItem("userInfo") || {}, //用户信息
+  userMenuList: storage.getItem("userMenuList") || [], //权限菜单
 };
 
 export default createStore({

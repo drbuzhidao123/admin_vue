@@ -6,6 +6,7 @@ import User from "../views/User.vue";
 import Menu from "../views/Menu.vue";
 import Role from "../views/Role.vue";
 import Dept from "../views/Dept.vue";
+import Error from "../views/Error.vue";
 import storage from "../util/storage";
 
 const routes = [
@@ -62,6 +63,14 @@ const routes = [
       },
     ],
   },
+  {
+    name: "error",
+    path: "/error",
+    component: Error,
+    meta: {
+      title: "错误页面",
+    },
+  },
 ];
 
 const router = createRouter({
@@ -69,11 +78,28 @@ const router = createRouter({
   routes,
 });
 
+//判断地址是否可以访问，不能访问跳转到error
+function checkPermission(path) {
+  let hasPermission = router
+    .getRoutes()
+    .filter((item) => item.path == path).length;
+  if (hasPermission) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+console.log("router");
+
 //路由守卫
 router.beforeEach((to, from, next) => {
   const tokenStr = storage.getItem("token");
-  if (to.matched.length === 0) {
+  /*if (to.matched.length === 0) {
     from.name ? next({ name: from.name }) : next("/error");
+  }*/
+  if (!checkPermission(to.path)) {
+    return next("/error");
   }
   //访问登录页的时候直接放行
   if (to.path == "/login") {
@@ -83,6 +109,7 @@ router.beforeEach((to, from, next) => {
   if (!tokenStr) {
     return next("/login");
   }
+  document.title = to.meta.title;
   next();
 });
 

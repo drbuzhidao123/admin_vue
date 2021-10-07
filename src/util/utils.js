@@ -1,6 +1,8 @@
 /**
  * 工具函数封装
  */
+import api from "../api";
+import router from "../router";
 export default {
   formateDate(date, rule) {
     let fmt = rule || "yyyy-MM-dd hh:mm:ss";
@@ -48,5 +50,19 @@ export default {
     };
     deepList(menuList);
     return routes;
+  },
+
+  loadAsyncRoutes() {
+    try {
+      const { menuList } = api.getPermissionList();
+      let routes = this.generateRoute(menuList);
+      routes.map((route) => {
+        let url = `./../views/${route.component}.vue`;
+        route.component = () => import(url);
+        router.addRoute("home", route);
+      });
+    } catch (error) {
+      return false;
+    }
   },
 };

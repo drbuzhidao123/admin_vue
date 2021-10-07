@@ -142,9 +142,9 @@ export default {
       noticeCount: 0,
       userMenuList: [],
       userInfo: {
-        userId: this.$storage.getItem("userInfo").id,
-        userName: this.$storage.getItem("userInfo").userName,
-        userEmail: this.$storage.getItem("userInfo").email,
+        userId: this.$store.state.userInfo.id,
+        userName: this.$store.state.userInfo.userName,
+        userEmail: this.$store.state.userInfo.userEmail,
       },
       password: "",
       editForm: {
@@ -215,14 +215,16 @@ export default {
         userId: this.userInfo.userId,
       });
       this.userMenuList = userMenuList;
+      this.$store.commit("saveUserMenu", userMenuList);
     },
     handleLogout(command) {
       if (command == "email") {
         return;
       }
-      this.$store.commit("saveUserInfo", "");
       this.$storage.clearItem("token", "");
-      this.userInfo = null;
+      this.$store.commit("saveUserInfo", "");
+      this.$store.commit("saveUserMenu", "");
+      this.userInfo = "";
       this.$router.push("/login");
     },
     toggleCollapse() {

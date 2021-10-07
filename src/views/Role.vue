@@ -36,7 +36,6 @@
           :prop="item.prop"
           :label="item.label"
           :width="item.width"
-          :formatter="item.formatter"
         >
         </el-table-column>
         <el-table-column label="操作" width="260">

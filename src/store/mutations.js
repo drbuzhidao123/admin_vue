@@ -8,4 +8,8 @@ export default {
     state.userInfo = userInfo;
     storage.setItem("userInfo", userInfo);
   },
+  saveUserMenu(state, userMenuList) {
+    state.userMenuList = userMenuList;
+    storage.setItem("userMenuList", userMenuList);
+  },
 };
