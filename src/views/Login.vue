@@ -40,6 +40,8 @@
 
 <script>
 import lizi_init from "../assets/js/login_back";
+import storage from "../util/storage";
+import utils from "../util/utils";
 export default {
   name: "Login",
   data() {
@@ -91,6 +93,7 @@ export default {
             this.$store.commit("saveUserInfo", res);
             this.$storage.setItem("token", res.token);
             this.$message.success("登录成功！");
+            this.loadAsyncRoutes();
             this.$router.push("/welcome");
           });
         } else {
@@ -100,6 +103,22 @@ export default {
     },
     resetForm() {
       this.$refs.userForm.resetFields();
+    },
+    async loadAsyncRoutes() {
+      let userInfo = storage.getItem("userInfo") || {};
+      if (userInfo.token) {
+        try {
+          const { menuList } = await this.$api.getPermissionList();
+          let routes = utils.generateRoute(menuList);
+          routes.map((route) => {
+            let url = `./../views/${route.component}.vue`;
+            route.component = () => import(url);
+            this.router.addRoute("home", route);
+          });
+        } catch (error) {
+          return error;
+        }
+      }
     },
   },
 };

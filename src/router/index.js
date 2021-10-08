@@ -2,29 +2,28 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Index from "../views/Index.vue";
 import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
-import User from "../views/User.vue";
+/* import User from "../views/User.vue";
 import Menu from "../views/Menu.vue";
 import Role from "../views/Role.vue";
-import Dept from "../views/Dept.vue";
+import Dept from "../views/Dept.vue"; */
 import Error from "../views/Error.vue";
-import storage from "../util/storage";
+import storage from "./../util/storage";
+import API from "./../api";
+import utils from "./../util/utils";
 
 const routes = [
-  {
-    path: "/",
-    redirect: "/index",
-  },
   {
     path: "/login",
     component: Login,
   },
   {
-    path: "/index",
-    component: Index,
-    redirect: "/welcome",
+    name: "index",
+    path: "/",
     meta: {
       title: "首页",
     },
+    component: Index,
+    redirect: "/welcome",
     children: [
       {
         path: "/welcome",
@@ -33,7 +32,8 @@ const routes = [
         },
         component: Welcome,
       },
-      {
+
+      /*     {
         path: "/system/user",
         meta: {
           title: "用户管理",
@@ -60,7 +60,7 @@ const routes = [
           title: "部门管理",
         },
         component: Dept,
-      },
+      }, */
     ],
   },
   {
@@ -78,6 +78,30 @@ const router = createRouter({
   routes,
 });
 
+//动态获取用户的权限路由,在这里运行是为了避免刷新，因为刷新后router重新刷新路由，会失去在login组件添加的router路由
+async function loadAsyncRoutes() {
+  let token = storage.getItem("token") || {};
+  let userInfo = storage.getItem("userInfo") || {};
+  if (token) {
+    try {
+      const menuList = await API.getUserMenuList({
+        userId: userInfo.id,
+      });
+      let routes = utils.generateRoute(menuList);
+      routes.map((route) => {
+        console.log(route.component);
+        //let url = "../views/" + route.component + ".vue";
+        route.component = () => import("../views/User");
+        router.addRoute("index", route);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+loadAsyncRoutes();
+
 //判断地址是否可以访问，不能访问跳转到error
 function checkPermission(path) {
   let hasPermission = router
@@ -89,8 +113,6 @@ function checkPermission(path) {
     return false;
   }
 }
-
-console.log("router");
 
 //路由守卫
 router.beforeEach((to, from, next) => {

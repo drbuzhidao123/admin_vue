@@ -6,7 +6,7 @@
         menu.children.length > 0 &&
         menu.children[0].menuType == 1
       "
-      :key="menu._id"
+      :key="menu.id"
     >
       <template #title>
         <i :class="menu.icon"></i>
@@ -17,7 +17,7 @@
     <el-menu-item
       v-else-if="menu.menuType == 1"
       :index="menu.path"
-      :key="menu._id"
+      :key="menu.id"
       >{{ menu.menuName }}</el-menu-item
     >
   </template>
