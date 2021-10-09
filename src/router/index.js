@@ -2,14 +2,10 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Index from "../views/Index.vue";
 import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
-/* import User from "../views/User.vue";
-import Menu from "../views/Menu.vue";
-import Role from "../views/Role.vue";
-import Dept from "../views/Dept.vue"; */
 import Error from "../views/Error.vue";
-import storage from "./../util/storage";
+import storage from "../utils/storage";
 import API from "./../api";
-import utils from "./../util/utils";
+import utils from "../utils/utils";
 
 const routes = [
   {
@@ -32,35 +28,6 @@ const routes = [
         },
         component: Welcome,
       },
-
-      /*     {
-        path: "/system/user",
-        meta: {
-          title: "用户管理",
-        },
-        component: User,
-      },
-      {
-        path: "/system/menu",
-        meta: {
-          title: "菜单管理",
-        },
-        component: Menu,
-      },
-      {
-        path: "/system/role",
-        meta: {
-          title: "角色管理",
-        },
-        component: Role,
-      },
-      {
-        path: "/system/dept",
-        meta: {
-          title: "部门管理",
-        },
-        component: Dept,
-      }, */
     ],
   },
   {
@@ -73,11 +40,6 @@ const routes = [
   },
 ];
 
-const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
-  routes,
-});
-
 //动态获取用户的权限路由,在这里运行是为了避免刷新，因为刷新后router重新刷新路由，会失去在login组件添加的router路由
 async function loadAsyncRoutes() {
   let token = storage.getItem("token") || {};
@@ -89,11 +51,10 @@ async function loadAsyncRoutes() {
       });
       let routes = utils.generateRoute(menuList);
       routes.map((route) => {
-        console.log(route.component);
-        //let url = "../views/" + route.component + ".vue";
-        route.component = () => import("../views/User");
+        route.component = import(`../views/${route.component}.vue`);
         router.addRoute("index", route);
       });
+      router.push("/welcome");
     } catch (error) {
       console.log(error);
     }
@@ -101,6 +62,11 @@ async function loadAsyncRoutes() {
 }
 
 loadAsyncRoutes();
+
+const router = createRouter({
+  history: createWebHashHistory(process.env.BASE_URL),
+  routes,
+});
 
 //判断地址是否可以访问，不能访问跳转到error
 function checkPermission(path) {

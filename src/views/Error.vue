@@ -12,6 +12,7 @@
 <script>
 export default {
   name: "Error",
+  mounted() {},
   methods: {
     goHome() {
       this.$router.push("/");

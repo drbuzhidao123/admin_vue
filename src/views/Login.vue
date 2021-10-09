@@ -40,8 +40,8 @@
 
 <script>
 import lizi_init from "../assets/js/login_back";
-import storage from "../util/storage";
-import utils from "../util/utils";
+import storage from "../utils/storage";
+import utils from "../utils/utils";
 export default {
   name: "Login",
   data() {
@@ -105,18 +105,20 @@ export default {
       this.$refs.userForm.resetFields();
     },
     async loadAsyncRoutes() {
+      let token = storage.getItem("token") || {};
       let userInfo = storage.getItem("userInfo") || {};
-      if (userInfo.token) {
+      if (token) {
         try {
-          const { menuList } = await this.$api.getPermissionList();
+          const menuList = await this.$api.getUserMenuList({
+            userId: userInfo.id,
+          });
           let routes = utils.generateRoute(menuList);
           routes.map((route) => {
-            let url = `./../views/${route.component}.vue`;
-            route.component = () => import(url);
-            this.router.addRoute("home", route);
+            route.component = import(`../views/${route.component}.vue`);
+            this.$router.addRoute("index", route);
           });
         } catch (error) {
-          return error;
+          console.log(error);
         }
       }
     },

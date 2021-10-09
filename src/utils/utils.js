@@ -43,12 +43,28 @@ export default {
             });
           }
         }
-        if (item.children && !item.action) {
+        if (item.children) {
           deepList(item.children);
         }
       }
     };
     deepList(menuList);
     return routes;
+  },
+
+  generateAction(menuList) {
+    let action = [];
+    const deepList = (menuList) => {
+      for (let item of menuList) {
+        if (item.menuType == 2) {
+          action.push(item.menuCode);
+        }
+        if (item.children) {
+          deepList(item.children);
+        }
+      }
+    };
+    deepList(menuList);
+    return action;
   },
 };

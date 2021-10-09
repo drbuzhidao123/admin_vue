@@ -1,5 +1,5 @@
 <template>
-  <div class="user-manage">
+  <div class="menu-manage">
     <el-card>
       <!-- 搜索&添加 -->
       <el-row :gutter="20">
@@ -49,15 +49,20 @@
               @click="handleCreate(2, scope.row)"
               type="primary"
               size="mini"
+              v-has="'system-menu-add'"
               >新增</el-button
             >
-            <el-button @click="handleEdit(scope.row)" size="mini"
+            <el-button
+              @click="handleEdit(scope.row)"
+              size="mini"
+              v-has="'system-menu-edit'"
               >编辑</el-button
             >
             <el-button
               type="danger"
               size="mini"
               @click="handleDel(scope.row.id)"
+              v-has="'system-menu-del'"
               >删除</el-button
             >
           </template>
@@ -143,7 +148,7 @@
   </div>
 </template>
 <script>
-import utils from "../util/utils";
+import utils from "../utils/utils";
 export default {
   name: "menu",
   data() {

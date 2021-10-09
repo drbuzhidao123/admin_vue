@@ -42,13 +42,18 @@
         ></el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="primary" @click="handleEdit(scope.row)"
+            <el-button
+              size="mini"
+              type="primary"
+              @click="handleEdit(scope.row)"
+              v-has="'system-dept-edit'"
               >编辑</el-button
             >
             <el-button
               size="mini"
               type="danger"
               @click="handleDel(scope.row.id)"
+              v-has="'system-dept-del'"
               >删除</el-button
             >
           </template>

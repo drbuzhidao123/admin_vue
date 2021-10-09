@@ -125,6 +125,7 @@
 import { Fold, Expand, Bell } from "@element-plus/icons";
 import breadcrumb from "../components/BreadCrumb.vue";
 import TreeMenu from "../components/TreeMenu.vue";
+import utils from "../utils/utils";
 export default {
   name: "Index",
   components: {
@@ -216,6 +217,8 @@ export default {
       });
       this.userMenuList = userMenuList;
       this.$store.commit("saveUserMenu", userMenuList);
+      let actionList = utils.generateAction(userMenuList);
+      this.$store.commit("saveActionList", actionList);
     },
     handleLogout(command) {
       if (command == "email") {
@@ -224,6 +227,7 @@ export default {
       this.$storage.clearItem("token", "");
       this.$store.commit("saveUserInfo", "");
       this.$store.commit("saveUserMenu", "");
+      this.$store.commit("saveActionList", "");
       this.userInfo = "";
       this.$router.push("/login");
     },

@@ -40,19 +40,24 @@
         </el-table-column>
         <el-table-column label="操作" width="260">
           <template #default="scope">
-            <el-button size="mini" @click="handleEdit(scope.row)"
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.row)"
+              v-has="'system:role:edit'"
               >编辑</el-button
             >
             <el-button
               size="mini"
               type="primary"
               @click="handleOpenPermission(scope.row)"
+              v-has="'system-role-seting'"
               >设置权限</el-button
             >
             <el-button
               type="danger"
               size="mini"
               @click="handleDel(scope.row.id)"
+              v-has="'system-role-del'"
               >删除</el-button
             >
           </template>
@@ -127,7 +132,7 @@
   </div>
 </template>
 <script>
-import utils from "../util/utils";
+import utils from "../utils/utils";
 export default {
   name: "role",
   data() {
@@ -283,10 +288,6 @@ export default {
     handleCurrentChange(current) {
       this.pager.pageNum = current;
       this.getRoleList();
-    },
-
-    handleTree() {
-      //console.log(this.$refs.tree.getCheckedKeys());
     },
     //权限弹框
     handleOpenPermission(row) {

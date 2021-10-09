@@ -1,5 +1,5 @@
 <template>
-  <div class="user">
+  <div class="user-manage">
     <el-card>
       <!-- 搜索&添加 -->
       <el-row :gutter="20">
@@ -24,7 +24,7 @@
             type="primary"
             icon="el-icon-circle-plus-outline"
             @click="handleCreate()"
-            >添加</el-button
+            >新增用户</el-button
           >
           <el-button
             type="danger"
@@ -73,28 +73,18 @@
               size="mini"
               @click="removeById(scope.row.id)"
             ></el-button>
-            <el-tooltip effect="light" content="分配角色" placement="top">
-              <el-button
-                type="warning"
-                icon="el-icon-setting"
-                size="mini"
-                @click="showSetDialog(scope.row.id)"
-              ></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
       <el-pagination
-        @size-change="handleSizeChange"
+        class="pagination"
+        background
+        layout="prev, pager, next"
+        :total="pager.total"
+        :page-size="pager.pageSize"
         @current-change="handleCurrentChange"
-        :current-page="queryInfo.pagenum"
-        :page-sizes="[1, 2, 5, 10]"
-        :page-size="queryInfo.pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      >
-      </el-pagination>
+      />
     </el-card>
     <!-- 添加和编辑用户对话框 -->
     <el-dialog
@@ -140,38 +130,6 @@
         </span>
       </template>
     </el-dialog>
-    <!-- 分配对话框 -->
-    <el-dialog
-      title="分配角色"
-      v-model="setDialogVisible"
-      width="30%"
-      :before-close="handleClose"
-      @close="setDiglogClose()"
-    >
-      <el-dropdown @command="handleCommand">
-        <el-button type="primary">
-          {{ checkgroup["title"]
-          }}<i class="el-icon-arrow-down el-icon--right"></i>
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item
-              v-for="group in authGroupList"
-              :key="group['id']"
-              :command="group"
-              >{{ group.title }}</el-dropdown-item
-            >
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="setDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="setgroup()">确 定</el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -180,21 +138,17 @@ export default {
   name: "user",
   data() {
     return {
-      //列表传递的参数
       queryInfo: {
-        //查询参数
         query: "",
-        //当前页码
-        pagenum: 1,
-        //每页显示的条数
-        pagesize: 10,
       },
-      total: 0, //总条数
       userList: [],
-      action: "create",
+      pager: {
+        total: 0,
+        pageNum: 1,
+        pageSize: 10,
+      },
       showModal: false,
-      setDialogVisible: false,
-      checkgroup: { group_id: -1, title: "请选择角色" },
+      action: "create",
       //添加用户
       userForm: {
         userName: "",
@@ -203,7 +157,7 @@ export default {
         mobile: "",
         sex: 0,
       },
-      userFormRules: {
+      rules: {
         userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
@@ -224,10 +178,18 @@ export default {
   },
   methods: {
     async getUserList() {
-      let userList = await this.$api.getUserList(this.queryInfo);
-      this.userList = userList.list;
-      this.total = userList.total;
+      try {
+        let { list, total } = await this.$api.getUserList({
+          ...this.queryInfo,
+          ...this.pager,
+        });
+        this.userList = list;
+        this.pager.total = total;
+      } catch (e) {
+        throw new Error(e);
+      }
     },
+    // 表单重置
     handleReset(form) {
       this.$refs[form].resetFields();
     },
@@ -239,8 +201,13 @@ export default {
       this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
-        //nextTick用于数据变化后dom结构立刻改变
-        Object.assign(this.deptForm, row);
+        this.userForm = {
+          id: row.id,
+          userName: row.userName,
+          userEmail: row.userEmail,
+          password: row.password,
+          mobile: row.mobile,
+        };
       });
     },
     handleClose() {
@@ -273,21 +240,18 @@ export default {
         }
       });
     },
-    //监听每页条数的改变
-    handleSizeChange(val) {
-      this.queryInfo.pagesize = val;
-      this.getUserList();
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      this.queryInfo.pagenum = val;
-      this.getUserList();
+    handleCurrentChange(current) {
+      this.pager.pageNum = current;
+      this.getRoleList();
     },
   },
 };
 </script>
 
 <style scoped lang="scss">
+.el-form {
+  text-align: left;
+}
 .el-card {
   .el-row {
     text-align: left;

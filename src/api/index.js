@@ -2,7 +2,7 @@
  *请求接口管理
  */
 
-import request from "./../util/request";
+import request from "./../utils/request";
 export default {
   login(params) {
     return request({
