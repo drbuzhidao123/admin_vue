@@ -52,9 +52,49 @@ export default {
       mock: false,
     });
   },
+  editUser(params) {
+    return request({
+      url: "/user/editUser",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  changeStatus(params) {
+    return request({
+      url: "/user/changeStatus",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  delUser(params) {
+    return request({
+      url: "/user/delUser",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  delManyUser(params) {
+    return request({
+      url: "/user/delManyUser",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   getDeptList(params) {
     return request({
       url: "/dept/getDeptList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  getAllDeptList(params) {
+    return request({
+      url: "/dept/getAllDeptList",
       method: "post",
       data: params,
       mock: false,
@@ -124,6 +164,15 @@ export default {
   getRoleList(params) {
     return request({
       url: "/role/getRoleList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  getAllRoleList(params) {
+    return request({
+      url: "/role/getAllRoleList",
       method: "post",
       data: params,
       mock: false,

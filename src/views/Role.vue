@@ -115,7 +115,6 @@
             node-key="id"
             default-expand-all
             :props="{ label: 'menuName' }"
-            @check-change="handleTree()"
           >
           </el-tree>
         </el-form-item>

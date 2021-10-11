@@ -26,10 +26,7 @@
             @click="handleCreate()"
             >新增用户</el-button
           >
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            @click="dialogVisible = true"
+          <el-button type="danger" icon="el-icon-delete" @click="handlePatchDel"
             >批量删除</el-button
           >
         </el-col>
@@ -44,9 +41,15 @@
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column prop="id" label="id"></el-table-column>
         <el-table-column prop="userName" label="用户名"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column prop="userEmail" label="邮箱"></el-table-column>
         <el-table-column prop="mobile" label="手机号码"></el-table-column>
-        <el-table-column prop="role" label="角色"></el-table-column>
+        <el-table-column
+          prop="sex"
+          label="性别"
+          :formatter="sexFormatter"
+        ></el-table-column>
+        <el-table-column prop="roleName" label="角色"></el-table-column>
+        <el-table-column prop="job" label="职位"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template #default="scope">
             <el-switch
@@ -71,7 +74,7 @@
               type="danger"
               icon="el-icon-delete"
               size="mini"
-              @click="removeById(scope.row.id)"
+              @click="handleDel(scope.row.id)"
             ></el-button>
           </template>
         </el-table-column>
@@ -95,31 +98,65 @@
     >
       <el-form
         :model="userForm"
-        :rules="userFormRules"
+        :rules="rules"
         ref="dialogForm"
         label-width="90px"
       >
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userForm.userName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email" autocomplete="off"></el-input>
+        <el-form-item label="邮箱" prop="userEmail">
+          <el-input v-model="userForm.userEmail" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号码" prop="mobile">
+          <el-input v-model="userForm.mobile" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
             type="password"
+            placeholder="用户密码"
             v-model="userForm.password"
             autocomplete="off"
           ></el-input>
         </el-form-item>
-        <el-form-item label="性别">
-          <el-radio-group v-model="userForm.sex" prop="sex">
-            <el-radio label="男性" :value="0"></el-radio>
-            <el-radio label="女性" :value="1"></el-radio>
+        <el-form-item label="性别" prop="sex">
+          <el-radio-group v-model="userForm.sex">
+            <el-radio :label="0">男性 </el-radio>
+            <el-radio :label="1">女性</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="手机号码" prop="mobile">
-          <el-input v-model="userForm.mobile" autocomplete="off"></el-input>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="userForm.status" placeholder="状态选择">
+            <el-option :value="1" label="在职"></el-option>
+            <el-option :value="0" label="离职"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="系统角色" prop="role">
+          <el-select
+            v-model="userForm.role"
+            placeholder="请选择用户系统角色"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="role in roleList"
+              :key="role.id"
+              :label="role.roleName"
+              :value="role.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="部门" prop="deptId">
+          <el-cascader
+            v-model="userForm.deptId"
+            placeholder="请选择部门"
+            :options="deptList"
+            :props="{ checkStrictly: true, value: 'id', label: 'deptName' }"
+            clearable
+            style="width: 100%"
+          ></el-cascader>
+        </el-form-item>
+        <el-form-item label="职位" prop="job">
+          <el-input v-model="userForm.job" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
 
@@ -142,6 +179,9 @@ export default {
         query: "",
       },
       userList: [],
+      roleList: [],
+      deptList: [],
+      checkedUserIds: [],
       pager: {
         total: 0,
         pageNum: 1,
@@ -149,25 +189,24 @@ export default {
       },
       showModal: false,
       action: "create",
-      //添加用户
+      //用户表单
       userForm: {
-        userName: "",
-        email: "",
-        password: "",
-        mobile: "",
-        sex: 0,
+        deptId: [null],
       },
       rules: {
         userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
         ],
-        email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        userEmail: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
         mobile: [
           { required: true, message: "请输入手机号码", trigger: "blur" },
           { min: 6, max: 15, message: "输入的手机号码是11位" },
         ],
+        status: [{ required: true, message: "请选择状态", trigger: "blur" }],
+        role: [{ required: true, message: "请选择角色", trigger: "blur" }],
+        deptId: [{ required: true, message: "请选择部门", trigger: "blur" }],
+        job: [{ required: true, message: "请输入职位", trigger: "blur" }],
       },
     };
   },
@@ -175,8 +214,16 @@ export default {
   created() {},
   mounted() {
     this.getUserList();
+    this.getAllRoleList();
+    this.getAllDeptList();
   },
   methods: {
+    sexFormatter(row, column, value) {
+      return {
+        0: "男性",
+        1: "女性",
+      }[value];
+    },
     async getUserList() {
       try {
         let { list, total } = await this.$api.getUserList({
@@ -188,6 +235,12 @@ export default {
       } catch (e) {
         throw new Error(e);
       }
+    },
+    async getAllRoleList() {
+      this.roleList = await this.$api.getAllRoleList();
+    },
+    async getAllDeptList() {
+      this.deptList = await this.$api.getAllDeptList();
     },
     // 表单重置
     handleReset(form) {
@@ -201,13 +254,8 @@ export default {
       this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
-        this.userForm = {
-          id: row.id,
-          userName: row.userName,
-          userEmail: row.userEmail,
-          password: row.password,
-          mobile: row.mobile,
-        };
+        row.deptId = row.deptId.split(",").map(Number);
+        Object.assign(this.userForm, row);
       });
     },
     handleClose() {
@@ -218,31 +266,74 @@ export default {
     handleSubmit() {
       this.$refs.dialogForm.validate(async (valid) => {
         if (valid) {
-          let params = this.deptForm;
-          params.userId = parseInt(params.userId);
-          delete params.user;
+          let params = this.userForm;
           if (this.action == "create") {
-            await this.$api.addDept(params).then((res) => {
+            delete this.userForm["id"];
+            await this.$api.addUser(params).then((res) => {
               if (res) {
                 this.$message.success("创建成功");
               }
             });
           } else {
-            await this.$api.editDept(params).then((res) => {
+            await this.$api.editUser(params).then((res) => {
               if (res) {
                 this.$message.success("更新成功");
-                delete this.deptForm["id"];
               }
             });
           }
           this.handleClose();
-          this.getDeptList();
+          this.getUserList();
         }
       });
     },
+
+    //删除
+    async handleDel(id) {
+      await this.$api.delUser({ id: id }).then((res) => {
+        console.log(res);
+      });
+      this.$message.success("删除成功");
+      this.getUserList();
+    },
+
+    //批量删除
+    async handlePatchDel() {
+      if (this.checkedUserIds.length == 0) {
+        this.$message.error("请选择要删除的用户");
+        return;
+      }
+      const res = await this.$api.delManyUser({
+        userIds: this.checkedUserIds, //批量删除
+      });
+      if (res) {
+        this.$message.success("删除成功");
+        this.getUserList();
+      } else {
+        this.$message.success("删除失败");
+      }
+    },
+
+    // 表格多选
+    handleSelectionChange(list) {
+      let arr = [];
+      list.map((item) => {
+        arr.push(item.id);
+      });
+      this.checkedUserIds = arr;
+    },
+
     handleCurrentChange(current) {
       this.pager.pageNum = current;
       this.getRoleList();
+    },
+    async changestatus(row) {
+      await this.$api
+        .changeStatus({ id: row.id, status: row.status })
+        .then((res) => {
+          if (res) {
+            this.$message.success("状态更新成功");
+          }
+        });
     },
   },
 };
