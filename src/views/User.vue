@@ -39,10 +39,11 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55"> </el-table-column>
-        <el-table-column prop="id" label="id"></el-table-column>
+        <!-- <el-table-column prop="id" label="id"></el-table-column> -->
+        <el-table-column prop="realName" label="姓名"></el-table-column>
         <el-table-column prop="userName" label="用户名"></el-table-column>
         <el-table-column prop="userEmail" label="邮箱"></el-table-column>
-        <el-table-column prop="mobile" label="手机号码"></el-table-column>
+        <!-- <el-table-column prop="mobile" label="手机号码"></el-table-column> -->
         <el-table-column
           prop="sex"
           label="性别"
@@ -68,12 +69,14 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
+              v-has="'system-user-edit'"
               @click="handleEdit(scope.row)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
+              v-has="'system-user-del'"
               @click="handleDel(scope.row.id)"
             ></el-button>
           </template>
@@ -104,6 +107,9 @@
       >
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userForm.userName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" prop="realName">
+          <el-input v-model="userForm.realName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="userEmail">
           <el-input v-model="userForm.userEmail" autocomplete="off"></el-input>
@@ -254,8 +260,8 @@ export default {
       this.action = "edit";
       this.showModal = true;
       this.$nextTick(() => {
-        row.deptId = row.deptId.split(",").map(Number);
         Object.assign(this.userForm, row);
+        this.userForm.deptId = row.deptId.split(",").map(Number);
       });
     },
     handleClose() {
@@ -324,7 +330,7 @@ export default {
 
     handleCurrentChange(current) {
       this.pager.pageNum = current;
-      this.getRoleList();
+      this.getUserList();
     },
     async changestatus(row) {
       await this.$api

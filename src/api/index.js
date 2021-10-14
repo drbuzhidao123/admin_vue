@@ -20,6 +20,54 @@ export default {
       mock: true,
     });
   },
+  getUserCount() {
+    return request({
+      url: "/user/getUserCount",
+      method: "post",
+      data: {},
+      mock: false,
+    });
+  },
+  getMenuCount() {
+    return request({
+      url: "/menu/getMenuCount",
+      method: "post",
+      data: {},
+      mock: false,
+    });
+  },
+  getRoleCount() {
+    return request({
+      url: "/role/getRoleCount",
+      method: "post",
+      data: {},
+      mock: false,
+    });
+  },
+  getDeptCount() {
+    return request({
+      url: "/dept/getDeptCount",
+      method: "post",
+      data: {},
+      mock: false,
+    });
+  },
+  getRoleName(params) {
+    return request({
+      url: "/role/getRoleName",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  getLog(params) {
+    return request({
+      url: "/tool/getLog",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   getUserMenuList(params) {
     return request({
       url: "/menu/getMenuListByUserId",
@@ -128,6 +176,15 @@ export default {
   getMenuList(params) {
     return request({
       url: "/menu/getMenuList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+
+  getRoleMenuList(params) {
+    return request({
+      url: "/menu/getRoleMenuList",
       method: "post",
       data: params,
       mock: false,

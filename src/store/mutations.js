@@ -20,4 +20,24 @@ export default {
     state.noticeCount = noticeCount;
     storage.setItem("noticeCount", noticeCount);
   },
+  saveUserCount(state, userCount) {
+    state.userCount = userCount;
+    storage.setItem("userCount", userCount);
+  },
+  saveMenuCount(state, menuCount) {
+    state.menuCount = menuCount;
+    storage.setItem("menuCount", menuCount);
+  },
+  saveRoleCount(state, roleCount) {
+    state.roleCount = roleCount;
+    storage.setItem("roleCount", roleCount);
+  },
+  saveDeptCount(state, deptCount) {
+    state.deptCount = deptCount;
+    storage.setItem("deptCount", deptCount);
+  },
+  saveUserRoleName(state, userRoleName) {
+    state.userRoleName = userRoleName;
+    storage.setItem("userRoleName", userRoleName);
+  },
 };

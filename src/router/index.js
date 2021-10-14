@@ -54,7 +54,6 @@ async function loadAsyncRoutes() {
         route.component = import(`../views/${route.component}.vue`);
         router.addRoute("index", route);
       });
-      router.push("/welcome");
     } catch (error) {
       console.log(error);
     }
@@ -87,7 +86,7 @@ router.beforeEach((to, from, next) => {
     from.name ? next({ name: from.name }) : next("/error");
   }*/
   if (!checkPermission(to.path)) {
-    return next("/error");
+    return next("/welcome");
   }
   //访问登录页的时候直接放行
   if (to.path == "/login") {

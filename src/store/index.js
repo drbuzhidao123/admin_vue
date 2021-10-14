@@ -4,9 +4,14 @@ import storage from "./../utils/storage";
 
 const state = {
   userInfo: storage.getItem("userInfo") || {}, //用户信息
+  userRoleName: storage.getItem("userRoleName") || null,
   userMenuList: storage.getItem("userMenuList") || [], //权限菜单
   actionList: storage.getItem("actionList"), //权限按钮
-  noticeCount: 0,
+  noticeCount: storage.getItem("noticeCount") || null,
+  userCount: storage.getItem("userCount") || null,
+  menuCount: storage.getItem("menuCount") || null,
+  roleCount: storage.getItem("roleCount") || null,
+  deptCount: storage.getItem("deptCount") || null,
 };
 
 export default createStore({

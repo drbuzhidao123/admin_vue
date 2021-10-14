@@ -36,6 +36,7 @@
           :prop="item.prop"
           :label="item.label"
           :width="item.width"
+          :formatter="item.formatter"
         >
         </el-table-column>
         <el-table-column label="操作" width="260">
@@ -43,7 +44,7 @@
             <el-button
               size="mini"
               @click="handleEdit(scope.row)"
-              v-has="'system:role:edit'"
+              v-has="'system-role-edit'"
               >编辑</el-button
             >
             <el-button
@@ -131,7 +132,7 @@
   </div>
 </template>
 <script>
-import utils from "../utils/utils";
+// import utils from "../utils/utils";
 export default {
   name: "role",
   data() {
@@ -151,13 +152,13 @@ export default {
         {
           label: "权限列表",
           prop: "permissionList",
-          width: 200,
+          width: 300,
           formatter: (row, column, value) => {
             let names = [];
-            let list = value.halfCheckedKeys || [];
-            list.map((key) => {
-              let name = this.actionMap[key];
-              if (key && name) names.push(name);
+            let list = value.split(",").map(Number) || [];
+            list.map((val) => {
+              let name = this.actionMap[val];
+              if (val && name) names.push(name);
             });
             return names.join(",");
           },
@@ -165,16 +166,16 @@ export default {
         {
           label: "更新时间",
           prop: "updateTime",
-          formatter(row, column, value) {
+          /*   formatter(row, column, value) {
             return utils.formateDate(new Date(value));
-          },
+          }, */
         },
         {
           label: "创建时间",
           prop: "createTime",
-          formatter(row, column, value) {
+          /* formatter(row, column, value) {
             return utils.formateDate(new Date(value));
-          },
+          }, */
         },
       ],
       roleList: [],
@@ -223,7 +224,7 @@ export default {
     },
     // 菜单列表初始化
     async getMenuList() {
-      let list = await this.$api.getMenuList({ query: "" });
+      let list = await this.$api.getRoleMenuList({ query: "" });
       this.menuList = list;
       this.getActionMap(list);
     },
@@ -319,10 +320,10 @@ export default {
       const deep = (arr) => {
         while (arr.length) {
           let item = arr.pop();
-          if (item.children && item.action) {
+          if (item.menuType == 1) {
             actionMap[item.id] = item.menuName;
           }
-          if (item.children && !item.action) {
+          if (item.children) {
             deep(item.children);
           }
         }

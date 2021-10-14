@@ -9,7 +9,6 @@
         :collapse="isCollapse"
         background-color="#393D49"
         text-color="#fff"
-        active-text-color="#ffd04b"
         :unique-opened="true"
         :router="true"
       >
@@ -46,12 +45,12 @@
             </el-badge>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>修改个人信息</el-dropdown-item>
+                <el-dropdown-item>审批信息</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
           <!--个人信息-->
-          <el-dropdown @command="handleLogout">
+          <el-dropdown @command="handleUser">
             <span class="el-dropdown-link">
               <el-avatar icon="el-icon-user-solid">
                 {{ userInfo.userName }}
@@ -66,8 +65,11 @@
                 <el-dropdown-item command="email">
                   <i class="el-icon-user"></i>邮箱：{{ userInfo.userEmail }}
                 </el-dropdown-item>
+                <el-dropdown-item command="editUser">
+                  <i class="el-icon-edit"></i>编辑用户
+                </el-dropdown-item>
                 <el-dropdown-item command="logout">
-                  <i class="el-icon-close"></i>退出
+                  <i class="el-icon-circle-close"></i>退出
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -81,41 +83,82 @@
   </el-container>
   <!-- 编辑用户对话框 -->
   <el-dialog
-    title="编辑用户"
-    v-model="editDialogVisible"
+    title="修改个人信息"
     width="30%"
-    :before-close="handleClose"
-    @close="editDiglogClose()"
+    v-model="showModal"
+    @close="handleClose"
   >
     <el-form
-      :model="editForm"
-      :rules="editFormRules"
-      ref="editFormRef"
+      :model="userForm"
+      :rules="rules"
+      ref="dialogForm"
       label-width="90px"
     >
-      <el-form-item label="用户名" prop="username">
-        <el-input
-          v-model="editForm.username"
-          autocomplete="off"
-          disabled
-        ></el-input>
+      <el-form-item label="用户名" prop="userName">
+        <el-input v-model="userForm.userName" autocomplete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="姓名" prop="realName">
+        <el-input v-model="userForm.realName" autocomplete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="userEmail">
+        <el-input v-model="userForm.userEmail" autocomplete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="手机号码" prop="mobile">
+        <el-input v-model="userForm.mobile" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input
           type="password"
-          v-model="editForm.password"
+          placeholder="用户密码"
+          v-model="userForm.password"
           autocomplete="off"
         ></el-input>
       </el-form-item>
-      <el-form-item label="手机号码" prop="mobile">
-        <el-input v-model="editForm.mobile" autocomplete="off"></el-input>
+      <el-form-item label="性别" prop="sex">
+        <el-radio-group v-model="userForm.sex">
+          <el-radio :label="0">男性 </el-radio>
+          <el-radio :label="1">女性</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="userForm.status" placeholder="状态选择">
+          <el-option :value="1" label="在职"></el-option>
+          <el-option :value="0" label="离职"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="系统角色" prop="role">
+        <el-select
+          v-model="userForm.role"
+          placeholder="请选择用户系统角色"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="role in roleList"
+            :key="role.id"
+            :label="role.roleName"
+            :value="role.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="部门" prop="deptId">
+        <el-cascader
+          v-model="userForm.deptId"
+          placeholder="请选择部门"
+          :options="deptList"
+          :props="{ checkStrictly: true, value: 'id', label: 'deptName' }"
+          clearable
+          style="width: 100%"
+        ></el-cascader>
+      </el-form-item>
+      <el-form-item label="职位" prop="job">
+        <el-input v-model="userForm.job" autocomplete="off"></el-input>
       </el-form-item>
     </el-form>
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUser()">确 定</el-button>
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="handleSubmit">确 定</el-button>
       </span>
     </template>
   </el-dialog>
@@ -139,7 +182,7 @@ export default {
     return {
       isCollapse: false,
       togicon: "el-icon-s-fold",
-      editDialogVisible: false,
+      showModal: false,
       noticeCount: 0,
       userMenuList: [],
       userInfo: {
@@ -147,16 +190,23 @@ export default {
         userName: this.$store.state.userInfo.userName,
         userEmail: this.$store.state.userInfo.userEmail,
       },
-      password: "",
-      editForm: {
-        username: "",
-        password: "",
-      },
-      editFormRules: {
-        username: [
+      roleList: [],
+      deptList: [],
+      userForm: {},
+      rules: {
+        userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 15, message: "输入的用户名长度在3到15之间" },
         ],
+        userEmail: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+        mobile: [
+          { required: true, message: "请输入手机号码", trigger: "blur" },
+          { min: 6, max: 15, message: "输入的手机号码是11位" },
+        ],
+        status: [{ required: true, message: "请选择状态", trigger: "blur" }],
+        role: [{ required: true, message: "请选择角色", trigger: "blur" }],
+        deptId: [{ required: true, message: "请选择部门", trigger: "blur" }],
+        job: [{ required: true, message: "请输入职位", trigger: "blur" }],
       },
     };
   },
@@ -164,49 +214,10 @@ export default {
   mounted() {
     this.getNoticeCount();
     this.getUserMenuList();
+    this.getAllRoleList();
+    this.getAllDeptList();
   },
   methods: {
-    editDiglogClose() {
-      this.$refs.editFormRef.resetFields();
-    },
-    showEditDialog(id) {
-      let _this = this;
-      this.axios.post("admin/getUser", { id: id }).then(function (res) {
-        if (res.data.status == 1) {
-          _this.editForm = res.data.result;
-          _this.editForm.password = "";
-          _this.editDialogVisible = true;
-        } else {
-          _this.$message.error(res.data.message);
-        }
-      });
-    },
-    //编辑用户
-    editUser() {
-      let _this = this;
-      _this.$refs.editFormRef.validate((valid) => {
-        if (valid) {
-          _this.axios
-            .put("admin/edit/", _this.editForm) //put请求资源
-            .then(function (res) {
-              //添加成功
-              if (res.data.status == 1) {
-                _this.$message.success({
-                  message: res.data.message,
-                  type: "success",
-                });
-                _this.editDialogVisible = false;
-                //_this.getUserList();
-              } else {
-                _this.$message.error(res.data.message);
-              }
-            });
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
     async getNoticeCount() {
       const count = await this.$api.noticeCount();
       this.noticeCount = count;
@@ -220,16 +231,57 @@ export default {
       let actionList = utils.generateAction(userMenuList);
       this.$store.commit("saveActionList", actionList);
     },
-    handleLogout(command) {
+    async getAllRoleList() {
+      this.userForm = this.$store.state.userInfo;
+      delete this.userForm.password;
+      this.userForm.deptId = this.userForm.deptId.split(",").map(Number);
+      this.roleList = await this.$api.getAllRoleList();
+    },
+    async getAllDeptList() {
+      this.deptList = await this.$api.getAllDeptList();
+    },
+    handleUser(command) {
       if (command == "email") {
+        return;
+      }
+      if (command == "editUser") {
+        this.showModal = true;
         return;
       }
       this.$storage.clearItem("token", "");
       this.$store.commit("saveUserInfo", "");
       this.$store.commit("saveUserMenu", "");
       this.$store.commit("saveActionList", "");
+      this.$store.commit("saveUserCount", "");
+      this.$store.commit("saveMenuCount", "");
+      this.$store.commit("saveRoleCount", "");
+      this.$store.commit("saveDeptCount", "");
+      this.$store.commit("saveUserRoleName", "");
       this.userInfo = "";
       this.$router.push("/login");
+    },
+    //编辑用户
+    handleSubmit() {
+      this.$refs.dialogForm.validate(async (valid) => {
+        if (valid) {
+          let params = this.userForm;
+          await this.$api.editUser(params).then((res) => {
+            if (res) {
+              this.$message.success("更新成功");
+              this.$store.commit("saveUserInfo", res);
+            }
+          });
+
+          this.handleClose();
+        }
+      });
+    },
+    handleClose() {
+      this.showModal = false;
+      this.handleReset("dialogForm");
+    },
+    handleReset(form) {
+      this.$refs[form].resetFields();
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
@@ -243,7 +295,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .el-header,
 .el-footer {
@@ -282,6 +333,7 @@ export default {
     height: 40px;
     margin-right: 20px;
   }
+
   .admin {
     cursor: pointer;
     .el-badge {

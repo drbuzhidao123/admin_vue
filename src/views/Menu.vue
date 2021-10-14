@@ -121,6 +121,13 @@
           <el-input v-model="menuForm.path" placeholder="请输入路由地址" />
         </el-form-item>
         <el-form-item
+          label="组件名"
+          prop="component"
+          v-show="menuForm.menuType == 1"
+        >
+          <el-input v-model="menuForm.component" placeholder="请输入路由地址" />
+        </el-form-item>
+        <el-form-item
           label="权限标识"
           prop="menuCode"
           v-show="menuForm.menuType == 2"
@@ -148,7 +155,6 @@
   </div>
 </template>
 <script>
-import utils from "../utils/utils";
 export default {
   name: "menu",
   data() {
@@ -187,6 +193,10 @@ export default {
           prop: "path",
         },
         {
+          label: "组件名",
+          prop: "component",
+        },
+        {
           label: "菜单状态",
           prop: "status",
           width: 90,
@@ -200,9 +210,6 @@ export default {
         {
           label: "创建时间",
           prop: "createTime",
-          formatter(row, column, value) {
-            return utils.formateDate(new Date(value));
-          },
         },
       ],
       showModal: false,

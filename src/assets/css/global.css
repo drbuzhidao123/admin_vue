@@ -76,7 +76,7 @@ body { color: #000;/*整站默认颜色*/ font-size: 14px;/*整站默认字体�
 .text-center{text-align: center;}
 .text-right{text-align: right;}
 a { color: #000;/*整站a连接默认颜色*/text-decoration: none;}
-a:hover,a:focus { color: #ead481;/*整站a连接移入默认颜色*/text-decoration: none; }
+a:hover,a:focus { color: #409eff;/*整站a连接移入默认颜色*/text-decoration: none; }
 
 /*图标*/
 .icon {
