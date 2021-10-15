@@ -274,9 +274,10 @@ export default {
     },
     async handleDel(id) {
       await this.$api.delMenu({ id: id }).then((res) => {
-        console.log(res);
+        if (res) {
+          this.$message.success("删除成功");
+        }
       });
-      this.$message.success("删除成功");
       this.getMenuList();
     },
     // 菜单操作-提交
@@ -293,7 +294,6 @@ export default {
             });
           } else {
             await this.$api.editMenu(params).then((res) => {
-              console.log(res);
               if (res) {
                 this.$message.success("更新成功");
               }

@@ -62,32 +62,50 @@
             </div>
           </template>
           <div class="card-body">
-            <ul class="analyze">
-              <li>
-                <a href="#">
-                  <h2>用户</h2>
-                  <span>{{ userCount }}</span>
-                </a>
-              </li>
-              <li>
-                <a href="#">
-                  <h2>菜单</h2>
-                  <span>{{ menuCount }}</span>
-                </a>
-              </li>
-              <li>
-                <a href="#">
-                  <h2>角色</h2>
-                  <span>{{ roleCount }}</span>
-                </a>
-              </li>
-              <li>
-                <a href="#">
-                  <h2>部门</h2>
-                  <span>{{ deptCount }}</span>
-                </a>
-              </li>
-            </ul>
+            <el-carousel height="196px" :autoplay="false" arrow="always">
+              <el-carousel-item v-for="item in 2" :key="item">
+                <ul class="analyze" v-if="item == 1">
+                  <li>
+                    <a href="#">
+                      <h2>用户</h2>
+                      <span>{{ userCount }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <h2>部门</h2>
+                      <span>{{ deptCount }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <h2>审批列表</h2>
+                      <span>0</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <h2>待审核数量</h2>
+                      <span>0</span>
+                    </a>
+                  </li>
+                </ul>
+                <ul class="analyze" v-if="item == 2">
+                  <li>
+                    <a href="#">
+                      <h2>菜单</h2>
+                      <span>{{ menuCount }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <h2>角色</h2>
+                      <span>{{ roleCount }}</span>
+                    </a>
+                  </li>
+                </ul>
+              </el-carousel-item>
+            </el-carousel>
           </div>
         </el-card>
       </el-col>
@@ -102,10 +120,10 @@
           <div class="card-body">
             <div class="userInfo">
               <p>
-                <label>姓名:</label> <span>{{ realName }}</span>
+                <label>姓名:</label> <span>{{ userInfo.realName }}</span>
               </p>
               <p>
-                <label>用户名:</label> <span>{{ userName }}</span>
+                <label>用户名:</label> <span>{{ userInfo.userName }}</span>
               </p>
               <p>
                 <label>系统角色:</label> <span>{{ userRoleName }}</span>
@@ -132,16 +150,28 @@
           </template>
           <div class="card-body">
             <div class="userInfo">
-              <p><label>公司:</label> <span>八爪鱼网络</span></p>
               <p>
-                <label>网址</label>
+                <i class="el-icon-office-building"></i><label>公司:</label>
+                <span>八爪鱼网络</span>
+              </p>
+              <p>
+                <i class="iconfont icon-web"></i><label>网址</label>
                 <a href="https://www.budray.com">https://www.budray.com</a>
               </p>
-              <p><label>客服:</label> <span>QQ 249167269</span></p>
-              <p><label>电话:</label> <span>13726337312</span></p>
-              <p><label>邮箱:</label> <span>ceo@budray.com</span></p>
               <p>
-                <label>地址:</label>
+                <i class="iconfont icon-kefu"></i><label>客服:</label>
+                <span>QQ 249167269</span>
+              </p>
+              <p>
+                <i class="el-icon-phone"></i><label>电话:</label>
+                <span>13726337312</span>
+              </p>
+              <p>
+                <i class="iconfont icon-youxiang"></i><label>邮箱:</label>
+                <span>ceo@budray.com</span>
+              </p>
+              <p>
+                <i class="el-icon-place"></i><label>地址:</label>
                 <span>顺德大良凤翔路41号顺德创意产业园A栋315号</span>
               </p>
             </div>
@@ -158,16 +188,28 @@
           </template>
           <div class="card-body">
             <div class="userInfo">
-              <p><label>公司:</label> <span>八爪鱼网络</span></p>
               <p>
-                <label>网址</label>
+                <i class="el-icon-office-building"></i><label>公司:</label>
+                <span>八爪鱼网络</span>
+              </p>
+              <p>
+                <i class="iconfont icon-web"></i><label>网址</label>
                 <a href="https://www.budray.com">https://www.budray.com</a>
               </p>
-              <p><label>客服:</label> <span>QQ 249167269</span></p>
-              <p><label>电话:</label> <span>13726337312</span></p>
-              <p><label>邮箱:</label> <span>ceo@budray.com</span></p>
               <p>
-                <label>地址:</label>
+                <i class="iconfont icon-kefu"></i><label>客服:</label>
+                <span>QQ 249167269</span>
+              </p>
+              <p>
+                <i class="el-icon-phone"></i><label>电话:</label>
+                <span>13726337312</span>
+              </p>
+              <p>
+                <i class="iconfont icon-youxiang"></i><label>邮箱:</label>
+                <span>ceo@budray.com</span>
+              </p>
+              <p>
+                <i class="el-icon-place"></i><label>地址:</label>
                 <span>顺德大良凤翔路41号顺德创意产业园A栋315号</span>
               </p>
             </div>
@@ -183,10 +225,6 @@ export default {
   name: "welcome",
   data() {
     return {
-      userId: this.$store.state.userInfo.id,
-      userName: this.$store.state.userInfo.userName,
-      realName: this.$store.state.userInfo.realName,
-      userRoleName: this.$store.state.userRoleName,
       userCount: this.$store.state.userCount,
       menuCount: this.$store.state.menuCount,
       roleCount: this.$store.state.roleCount,
@@ -208,6 +246,12 @@ export default {
     },
     loginTime: function () {
       return new Date().toLocaleTimeString();
+    },
+    userInfo() {
+      return this.$store.state.userInfo;
+    },
+    userRoleName() {
+      return this.$store.state.userRoleName;
     },
   },
   methods: {
@@ -258,7 +302,6 @@ export default {
         let userRoleName = await this.$api.getRoleName({
           roleId: this.$store.state.userInfo.role,
         });
-        this.userRoleName = userRoleName.roleName;
         this.$store.commit("saveUserRoleName", userRoleName.roleName);
       }
       return;
@@ -341,6 +384,9 @@ export default {
       .userInfo {
         color: #000;
         text-align: left;
+        i {
+          font-size: 16px;
+        }
         p label {
           margin: 0 10px;
           color: #adadad;

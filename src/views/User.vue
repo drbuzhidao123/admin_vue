@@ -296,9 +296,10 @@ export default {
     //删除
     async handleDel(id) {
       await this.$api.delUser({ id: id }).then((res) => {
-        console.log(res);
+        if (res) {
+          this.$message.success("删除成功");
+        }
       });
-      this.$message.success("删除成功");
       this.getUserList();
     },
 

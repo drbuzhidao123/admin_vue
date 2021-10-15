@@ -309,10 +309,11 @@ export default {
         halfCheckedKeys: halfKeys,
       };
       await this.$api.updatePermission(params).then((res) => {
-        console.log(res);
+        if (res) {
+          this.$message.success("设置成功");
+        }
       });
       this.showPermission = false;
-      this.$message.success("设置成功");
       this.getRoleList();
     },
     getActionMap(list) {

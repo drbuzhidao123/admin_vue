@@ -90,6 +90,8 @@ export default {
         if (valid) {
           this.$api.login(this.user).then((res) => {
             //存储登录信息在store和localstorage,存在localstorage是为了存储更稳定因为vuex只要一刷新就没了信息。
+            delete res.password;
+            res.deptId = res.deptId.split(",").map(Number);
             this.$store.commit("saveUserInfo", res);
             this.$storage.setItem("token", res.token);
             this.$message.success("登录成功！");

@@ -53,17 +53,19 @@
           <el-dropdown @command="handleUser">
             <span class="el-dropdown-link">
               <el-avatar icon="el-icon-user-solid">
-                {{ userInfo.userName }}
+                {{ userForm.userName }}
               </el-avatar>
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="email">
-                  <i class="el-icon-user"></i>用户：{{ userInfo.userName }}
+                  <i class="el-icon-user"></i>用户：{{ userForm.userName }}
                 </el-dropdown-item>
                 <el-dropdown-item command="email">
-                  <i class="el-icon-user"></i>邮箱：{{ userInfo.userEmail }}
+                  <i class="iconfont icon-youxiang"></i>邮箱：{{
+                    userForm.userEmail
+                  }}
                 </el-dropdown-item>
                 <el-dropdown-item command="editUser">
                   <i class="el-icon-edit"></i>编辑用户
@@ -109,7 +111,7 @@
       <el-form-item label="密码" prop="password">
         <el-input
           type="password"
-          placeholder="用户密码"
+          placeholder="用户密码（不输入则原密码）"
           v-model="userForm.password"
           autocomplete="off"
         ></el-input>
@@ -185,14 +187,8 @@ export default {
       showModal: false,
       noticeCount: 0,
       userMenuList: [],
-      userInfo: {
-        userId: this.$store.state.userInfo.id,
-        userName: this.$store.state.userInfo.userName,
-        userEmail: this.$store.state.userInfo.userEmail,
-      },
       roleList: [],
       deptList: [],
-      userForm: {},
       rules: {
         userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
@@ -217,6 +213,11 @@ export default {
     this.getAllRoleList();
     this.getAllDeptList();
   },
+  computed: {
+    userForm() {
+      return this.$store.state.userInfo;
+    },
+  },
   methods: {
     async getNoticeCount() {
       const count = await this.$api.noticeCount();
@@ -224,7 +225,7 @@ export default {
     },
     async getUserMenuList() {
       const userMenuList = await this.$api.getUserMenuList({
-        userId: this.userInfo.userId,
+        userId: this.$store.state.userInfo.id,
       });
       this.userMenuList = userMenuList;
       this.$store.commit("saveUserMenu", userMenuList);
@@ -232,9 +233,6 @@ export default {
       this.$store.commit("saveActionList", actionList);
     },
     async getAllRoleList() {
-      this.userForm = this.$store.state.userInfo;
-      delete this.userForm.password;
-      this.userForm.deptId = this.userForm.deptId.split(",").map(Number);
       this.roleList = await this.$api.getAllRoleList();
     },
     async getAllDeptList() {
@@ -262,16 +260,18 @@ export default {
     },
     //编辑用户
     handleSubmit() {
-      this.$refs.dialogForm.validate(async (valid) => {
+      this.$refs.dialogForm.validate((valid) => {
         if (valid) {
           let params = this.userForm;
-          await this.$api.editUser(params).then((res) => {
+          this.$api.editUser(params).then((res) => {
             if (res) {
               this.$message.success("更新成功");
+              res.deptId = res.deptId.split(",").map(Number);
+              delete res.password;
               this.$store.commit("saveUserInfo", res);
+              this.changeRoleName();
             }
           });
-
           this.handleClose();
         }
       });
@@ -290,6 +290,13 @@ export default {
       } else {
         this.togicon = "el-icon-s-fold";
       }
+    },
+    async changeRoleName() {
+      let userRoleName = await this.$api.getRoleName({
+        roleId: this.$store.state.userInfo.role,
+      });
+      this.$store.commit("saveUserRoleName", userRoleName.roleName);
+      return;
     },
   },
 };

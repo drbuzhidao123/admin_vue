@@ -5,6 +5,7 @@ import store from "./store";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import "./assets/css/global.css";
+import "./assets/css/icon.css";
 import request from "./utils/request";
 import storage from "./utils/storage";
 import api from "./api";
