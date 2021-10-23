@@ -7,6 +7,7 @@
         menu.children[0].menuType == 1
       "
       :key="menu.id"
+      :index="menu.id"
     >
       <template #title>
         <i :class="menu.icon"></i>

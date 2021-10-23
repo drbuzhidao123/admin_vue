@@ -260,6 +260,9 @@ export default {
       this.$store.commit("saveMenuCount", "");
       this.$store.commit("saveRoleCount", "");
       this.$store.commit("saveDeptCount", "");
+      this.$store.commit("saveUserRoleName", "");
+      this.$store.commit("saveUserMenu", "");
+      this.$store.commit("saveActionList", "");
       this.$message.success("清除成功");
     },
     downloadLog() {

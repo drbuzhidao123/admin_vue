@@ -271,4 +271,38 @@ export default {
       mock: false,
     });
   },
+  //审批
+  getLeavesList(params) {
+    return request({
+      url: "/Leaves/getLeavesList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  addLeaves(params) {
+    return request({
+      url: "/Leaves/addLeaves",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  delLeaves(params) {
+    return request({
+      url: "/Leaves/delLeaves",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  //审核人看的列表
+  getApproveList(params) {
+    return request({
+      url: "/Leaves/getApproveList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
 };
