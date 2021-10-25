@@ -263,6 +263,7 @@ export default {
       this.$store.commit("saveUserRoleName", "");
       this.$store.commit("saveUserMenu", "");
       this.$store.commit("saveActionList", "");
+      this.$store.commit("saveNoticeCount", "");
       this.$message.success("清除成功");
     },
     downloadLog() {

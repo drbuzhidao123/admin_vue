@@ -45,7 +45,9 @@
             </el-badge>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>审批信息</el-dropdown-item>
+                <el-dropdown-item @click="toApprove()"
+                  >审批信息</el-dropdown-item
+                >
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -185,7 +187,6 @@ export default {
       isCollapse: false,
       togicon: "el-icon-s-fold",
       showModal: false,
-      noticeCount: 0,
       userMenuList: [],
       roleList: [],
       deptList: [],
@@ -217,11 +218,17 @@ export default {
     userForm() {
       return this.$store.state.userInfo;
     },
+    noticeCount() {
+      return this.$store.state.noticeCount;
+    },
   },
   methods: {
     async getNoticeCount() {
-      const count = await this.$api.noticeCount();
+      const count = await this.$api.noticeCount({
+        userName: this.$store.state.userInfo.userName,
+      });
       this.noticeCount = count;
+      this.$store.commit("saveNoticeCount", count);
     },
     async getUserMenuList() {
       const userMenuList = await this.$api.getUserMenuList({
@@ -297,6 +304,9 @@ export default {
       });
       this.$store.commit("saveUserRoleName", userRoleName.roleName);
       return;
+    },
+    toApprove() {
+      this.$router.push("/approveManage/approve");
     },
   },
 };

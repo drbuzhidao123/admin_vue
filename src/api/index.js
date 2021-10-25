@@ -12,12 +12,12 @@ export default {
       mock: false,
     });
   },
-  noticeCount() {
+  noticeCount(params) {
     return request({
-      url: "/leave/count",
-      method: "get",
-      data: {},
-      mock: true,
+      url: "/leaves/noticeCount",
+      method: "post",
+      data: params,
+      mock: false,
     });
   },
   getUserCount() {
@@ -300,6 +300,15 @@ export default {
   getApproveList(params) {
     return request({
       url: "/Leaves/getApproveList",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
+  //审批接口
+  leaveApprove(params) {
+    return request({
+      url: "/leaves/leaveApprove",
       method: "post",
       data: params,
       mock: false,

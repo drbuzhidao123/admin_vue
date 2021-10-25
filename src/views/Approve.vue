@@ -66,7 +66,7 @@
         :rules="rules"
       >
         <el-form-item label="申请人">
-          <div>{{ detail.applyUser.userName }}</div>
+          <div>{{ detail.realName }}</div>
         </el-form-item>
         <el-form-item label="休假类型">
           <div>{{ detail.applyTypeName }}</div>
@@ -78,7 +78,7 @@
           <div>{{ detail.leaveTime }}</div>
         </el-form-item>
         <el-form-item label="休假原因">
-          <div>{{ detail.reasons }}</div>
+          <div>{{ detail.reason }}</div>
         </el-form-item>
         <el-form-item label="审批状态">
           <div>{{ detail.applyStateName }}</div>
@@ -112,9 +112,10 @@ export default {
   name: "approve",
   data() {
     return {
+      userInfo: this.$store.state.userInfo,
       queryForm: {
         applyState: 1,
-        applyUser: this.$store.state.userInfo.id,
+        userName: this.$store.state.userInfo.userName,
       },
       pager: {
         pageNum: 1,
@@ -131,7 +132,7 @@ export default {
           label: "申请人",
           prop: "",
           formatter(row) {
-            return row.applyUser.userName;
+            return row.realName;
           },
         },
         {
@@ -263,13 +264,18 @@ export default {
           let params = {
             action,
             remark: this.auditForm.remark,
-            id: this.detail.id,
+            orderNo: this.detail.orderNo,
+            approveUser: this.$store.state.userInfo.userName,
           };
           try {
-            await this.$api.leaveApprove(params);
+            await this.$api.leaveApprove(params).then((res) => {
+              if (res) {
+                console.log(res);
+                this.$message.success("处理成功");
+              }
+            });
             this.handleClose();
-            this.$message.success("处理成功");
-            this.getApplyList();
+            this.getApproveList();
             this.$store.commit(
               "saveNoticeCount",
               this.$store.state.noticeCount - 1
