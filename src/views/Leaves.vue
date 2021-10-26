@@ -20,7 +20,12 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleLeaves">申请休假</el-button>
+        <el-button
+          type="primary"
+          v-has="'system-leaves-apply'"
+          @click="handleLeaves"
+          >申请休假</el-button
+        >
       </div>
       <el-table :data="leavesList">
         <el-table-column
@@ -34,7 +39,10 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button size="mini" @click="handleDetail(scope.row)"
+            <el-button
+              size="mini"
+              v-has="'system-leaves-detail'"
+              @click="handleDetail(scope.row)"
               >查看</el-button
             >
             <el-button
@@ -42,6 +50,7 @@
               size="mini"
               @click="handleDelete(scope.row.orderNo)"
               v-if="[1, 2].includes(scope.row.applyState)"
+              v-has="'system-leaves-recall'"
               >撤回</el-button
             >
           </template>
@@ -139,9 +148,6 @@
         </el-form-item>
         <el-form-item label="审批状态">
           <div>{{ detail.applyStateName }}</div>
-        </el-form-item>
-        <el-form-item label="审批人">
-          <div>{{ detail.curAuditUserName }}</div>
         </el-form-item>
       </el-form>
     </el-dialog>

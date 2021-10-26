@@ -20,6 +20,10 @@ export default {
     state.noticeCount = noticeCount;
     storage.setItem("noticeCount", noticeCount);
   },
+  saveLeavesCount(state, leavesCount) {
+    state.leavesCount = leavesCount;
+    storage.setItem("leavesCount", leavesCount);
+  },
   saveUserCount(state, userCount) {
     state.userCount = userCount;
     storage.setItem("userCount", userCount);

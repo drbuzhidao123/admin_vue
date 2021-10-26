@@ -51,7 +51,7 @@
         ></el-table-column>
         <el-table-column prop="roleName" label="角色"></el-table-column>
         <el-table-column prop="job" label="职位"></el-table-column>
-        <el-table-column prop="status" label="状态">
+        <el-table-column prop="status" label="在职状态">
           <template #default="scope">
             <el-switch
               @click="changestatus(scope.row)"

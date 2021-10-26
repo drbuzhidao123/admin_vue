@@ -76,6 +76,7 @@
     <el-dialog
       :title="action == 'create' ? '新增角色' : '编辑角色'"
       v-model="showModal"
+      @close="handleClose"
     >
       <el-form
         ref="dialogForm"

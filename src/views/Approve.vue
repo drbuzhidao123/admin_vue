@@ -34,6 +34,7 @@
             <el-button
               size="mini"
               @click="handleDetail(scope.row)"
+              v-has="'system-leaves-approve'"
               v-if="
                 scope.row.curAuditUserName == userInfo.userName &&
                 [1, 2].includes(scope.row.applyState)

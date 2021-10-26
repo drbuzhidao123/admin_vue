@@ -79,14 +79,14 @@
                   </li>
                   <li>
                     <a href="#">
-                      <h2>审批列表</h2>
-                      <span>0</span>
+                      <h2>申请数量</h2>
+                      <span>{{ leavesCount }}</span>
                     </a>
                   </li>
                   <li>
                     <a href="#">
                       <h2>待审核数量</h2>
-                      <span>0</span>
+                      <span>{{ $store.state.noticeCount }}</span>
                     </a>
                   </li>
                 </ul>
@@ -229,6 +229,7 @@ export default {
       menuCount: this.$store.state.menuCount,
       roleCount: this.$store.state.roleCount,
       deptCount: this.$store.state.deptCount,
+      leavesCount: this.$store.state.leavesCount,
     };
   },
   props: {},
@@ -239,6 +240,7 @@ export default {
     this.getRoleCount();
     this.getDeptCount();
     this.getRoleName();
+    this.getLeavesCount();
   },
   computed: {
     host: function () {
@@ -264,6 +266,7 @@ export default {
       this.$store.commit("saveUserMenu", "");
       this.$store.commit("saveActionList", "");
       this.$store.commit("saveNoticeCount", "");
+      this.$store.commit("saveLeavesCount", "");
       this.$message.success("清除成功");
     },
     downloadLog() {
@@ -309,6 +312,13 @@ export default {
         this.$store.commit("saveUserRoleName", userRoleName.roleName);
       }
       return;
+    },
+    async getLeavesCount() {
+      const count = await this.$api.leavesCount({
+        applyUser: this.$store.state.userInfo.id,
+      });
+      this.leavesCount = count;
+      this.$store.commit("saveLeavesCount", count);
     },
   },
 };

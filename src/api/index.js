@@ -20,6 +20,14 @@ export default {
       mock: false,
     });
   },
+  leavesCount(params) {
+    return request({
+      url: "/leaves/leavesCount",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   getUserCount() {
     return request({
       url: "/user/getUserCount",

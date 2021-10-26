@@ -8,6 +8,7 @@ const state = {
   userMenuList: storage.getItem("userMenuList") || [], //权限菜单
   actionList: storage.getItem("actionList"), //权限按钮
   noticeCount: storage.getItem("noticeCount") || null,
+  leavesCount: storage.getItem("leavesCount") || null,
   userCount: storage.getItem("userCount") || null,
   menuCount: storage.getItem("menuCount") || null,
   roleCount: storage.getItem("roleCount") || null,
