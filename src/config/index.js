@@ -15,7 +15,7 @@ const EnvConfig = {
       "https://www.fastmock.site/mock/28abdf1cf4a03ac6565549b8c8543cf5/api",
   },
   production: {
-    baseApi: "http://www.api.budraysys.cn/admin",
+    baseApi: "http://api.budraysys.cn/admin",
     mockApi: "",
   },
 };

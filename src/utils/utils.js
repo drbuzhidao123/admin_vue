@@ -39,7 +39,7 @@ export default {
               meta: {
                 title: item.menuName,
               },
-              component: item.component,
+              componentName: item.component,
             });
           }
         }

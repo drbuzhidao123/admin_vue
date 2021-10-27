@@ -51,7 +51,7 @@ async function loadAsyncRoutes() {
       });
       let routes = utils.generateRoute(menuList);
       routes.map((route) => {
-        route.component = import(`../views/${route.component}.vue`);
+        route.component = () => import(`../views/${route.componentName}.vue`);
         router.addRoute("index", route);
       });
     } catch (error) {
