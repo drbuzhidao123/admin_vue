@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import Index from "../views/Index.vue";
 import Login from "../views/Login.vue";
 import Welcome from "../views/Welcome.vue";
@@ -63,7 +63,7 @@ async function loadAsyncRoutes() {
 loadAsyncRoutes();
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes,
 });
 
