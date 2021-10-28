@@ -26,13 +26,13 @@
                 </a>
               </li>
               <li>
-                <a href="#/system/user">
+                <a href="/system/user">
                   <i class="el-icon-user"></i>
                   <span>用户列表</span>
                 </a>
               </li>
               <li>
-                <a href="#/system/dept">
+                <a href="/system/dept">
                   <i class="el-icon-user"></i>
                   <span>部门列表</span>
                 </a>
