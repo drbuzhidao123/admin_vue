@@ -33,6 +33,11 @@ service.interceptors.response.use((res) => {
   if (code === 200) {
     let res = JSON.parse(secret.Decrypt(data));
     return res;
+  } else if (code === 40002) {
+    //验证码有误
+    ElMessage.error(msg || UnToken);
+    let res = JSON.parse(secret.Decrypt(data));
+    return Promise.reject(res);
   } else if (code === 40001) {
     //未登录，没token或者token在后端对不上出错或token过期
     ElMessage.error(msg || UnToken);

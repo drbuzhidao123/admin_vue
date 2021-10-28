@@ -12,6 +12,14 @@ export default {
       mock: false,
     });
   },
+  getCaptcha(params) {
+    return request({
+      url: "/tool/getCaptcha",
+      method: "post",
+      data: params,
+      mock: false,
+    });
+  },
   noticeCount(params) {
     return request({
       url: "/leaves/noticeCount",

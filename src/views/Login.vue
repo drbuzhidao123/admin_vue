@@ -17,6 +17,7 @@
           <el-input
             prefix-icon="iconfont icon-yonghu"
             v-model="user.userName"
+            placeholder="用户名"
             autocomplete="off"
           ></el-input>
         </el-form-item>
@@ -25,10 +26,25 @@
             prefix-icon="iconfont icon-password"
             type="password"
             v-model="user.password"
+            placeholder="密码"
             autocomplete="off"
           ></el-input>
         </el-form-item>
-
+        <el-form-item prop="captcha">
+          <el-row>
+            <el-col :span="12">
+              <el-input
+                prefix-icon="iconfont icon-password"
+                v-model="user.captcha"
+                autocomplete="off"
+                placeholder="验证码"
+              ></el-input>
+            </el-col>
+            <el-col :span="12">
+              <img :src="captchaUrl" alt="" />
+            </el-col>
+          </el-row>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="login()">提交</el-button>
           <el-button @click="resetForm()">重置</el-button>
@@ -59,15 +75,26 @@ export default {
         callback();
       }
     };
+    var validateCap = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入验证码"));
+      } else {
+        callback();
+      }
+    };
     return {
       labelPosition: "left",
+      captchaUrl: "",
       user: {
         userName: "",
         password: "",
+        captcha: "",
+        key: "",
       },
       rules: {
         userName: [{ validator: validatename, trigger: "blur" }],
         password: [{ validator: validatePass, trigger: "blur" }],
+        captcha: [{ validator: validateCap, trigger: "blur" }],
       },
     };
   },
@@ -83,21 +110,35 @@ export default {
         }
       };
     });
+    this.getCaptcha();
   },
   methods: {
+    getCaptcha() {
+      this.$api.getCaptcha(this.user).then((res) => {
+        delete res.code;
+        delete res.md5;
+        this.captchaUrl = res.base64;
+        this.user.key = res.key;
+      });
+    },
     login() {
       this.$refs.userForm.validate((valid) => {
         if (valid) {
-          this.$api.login(this.user).then((res) => {
-            //存储登录信息在store和localstorage,存在localstorage是为了存储更稳定因为vuex只要一刷新就没了信息。
-            delete res.password;
-            res.deptId = res.deptId.split(",").map(Number);
-            this.$store.commit("saveUserInfo", res);
-            this.$storage.setItem("token", res.token);
-            this.$message.success("登录成功！");
-            this.loadAsyncRoutes();
-            this.$router.push("/welcome");
-          });
+          this.$api
+            .login(this.user)
+            .then((res) => {
+              //存储登录信息在store和localstorage,存在localstorage是为了存储更稳定因为vuex只要一刷新就没了信息。
+              delete res.password;
+              res.deptId = res.deptId.split(",").map(Number);
+              this.$store.commit("saveUserInfo", res);
+              this.$storage.setItem("token", res.token);
+              this.$message.success("登录成功！");
+              this.loadAsyncRoutes();
+              this.$router.push("/welcome");
+            })
+            .catch(() => {
+              this.getCaptcha();
+            });
         } else {
           return false;
         }
@@ -146,7 +187,7 @@ export default {
   align-items: center;
   .box {
     width: 400px;
-    height: 300px;
+    height: 350px;
     margin-top: -10%;
     box-shadow: 0 -15px 30px #000;
     background-color: #fff;
