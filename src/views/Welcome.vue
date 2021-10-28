@@ -26,13 +26,13 @@
                 </a>
               </li>
               <li>
-                <a href="/system/user">
+                <a @click="toUser()">
                   <i class="el-icon-user"></i>
                   <span>用户列表</span>
                 </a>
               </li>
               <li>
-                <a href="/system/dept">
+                <a @click="toDept()">
                   <i class="el-icon-user"></i>
                   <span>部门列表</span>
                 </a>
@@ -319,6 +319,12 @@ export default {
       });
       this.leavesCount = count;
       this.$store.commit("saveLeavesCount", count);
+    },
+    toUser() {
+      this.$router.push("/system/user");
+    },
+    toDept() {
+      this.$router.push("/system/dept");
     },
   },
 };
