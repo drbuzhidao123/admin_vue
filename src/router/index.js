@@ -12,7 +12,7 @@ const routes = [
     path: "/login",
     component: Login,
     meta: {
-      title: "登录",
+      title: "登录界面",
     },
   },
   {
@@ -93,10 +93,12 @@ router.beforeEach((to, from, next) => {
   }
   //访问登录页的时候直接放行
   if (to.path == "/login") {
+    document.title = to.meta.title;
     return next();
   }
   //没有token，强制跳转
   if (!tokenStr) {
+    document.title = to.meta.title;
     return next("/login");
   }
   document.title = to.meta.title;
