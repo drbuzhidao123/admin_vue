@@ -88,7 +88,7 @@
   <!-- 编辑用户对话框 -->
   <el-dialog
     title="修改个人信息"
-    width="30%"
+    width="600px"
     v-model="showModal"
     @close="handleClose"
   >

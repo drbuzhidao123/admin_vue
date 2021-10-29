@@ -19,7 +19,7 @@
             </el-input>
           </el-form>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="7">
           <el-button
             type="primary"
             icon="el-icon-circle-plus-outline"
@@ -38,9 +38,13 @@
         border
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55"> </el-table-column>
+        <el-table-column type="selection" width="50px"> </el-table-column>
         <!-- <el-table-column prop="id" label="id"></el-table-column> -->
-        <el-table-column prop="realName" label="姓名"></el-table-column>
+        <el-table-column
+          prop="realName"
+          label="姓名"
+          width="100px"
+        ></el-table-column>
         <el-table-column prop="userName" label="用户名"></el-table-column>
         <el-table-column prop="userEmail" label="邮箱"></el-table-column>
         <!-- <el-table-column prop="mobile" label="手机号码"></el-table-column> -->
@@ -48,10 +52,11 @@
           prop="sex"
           label="性别"
           :formatter="sexFormatter"
+          width="80px"
         ></el-table-column>
         <el-table-column prop="roleName" label="角色"></el-table-column>
         <el-table-column prop="job" label="职位"></el-table-column>
-        <el-table-column prop="status" label="在职状态">
+        <el-table-column prop="status" label="在职状态" width="100px">
           <template #default="scope">
             <el-switch
               @click="changestatus(scope.row)"
@@ -63,7 +68,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建日期"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="130px">
           <template #default="scope">
             <el-button
               type="primary"
@@ -95,7 +100,7 @@
     <!-- 添加和编辑用户对话框 -->
     <el-dialog
       :title="action == 'create' ? '添加用户' : '编辑用户'"
-      width="30%"
+      width="600px"
       v-model="showModal"
       @close="handleClose"
     >
